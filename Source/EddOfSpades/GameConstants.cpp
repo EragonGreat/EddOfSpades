@@ -14,6 +14,8 @@ const int64 GameConstants::WorldBlockCount = GameConstants::WorldChunkCount * Ga
 
 const int64 GameConstants::TotalChunks = GameConstants::WorldChunkCount * GameConstants::WorldChunkCount;
 
+const int64 GameConstants::TotalBlocks = GameConstants::WorldBlockCount * GameConstants::WorldBlockCount * GameConstants::WorldHeight;
+
 const int32 GameConstants::DefaultServerPort = 5555;
 
 const int32 GameConstants::DefaultClientPort = 5554;

@@ -8,17 +8,21 @@
 
 
 USTRUCT()
-struct EDDOFSPADES_API FTensionNode
+struct EDDOFSPADES_API FBlockNode
 {
 	GENERATED_BODY()
 
 public:
 	FIntVector Position;
-	int8 DistanceFromOrigin;
+
+	int32 StartCost;
+	int32 GroundCost;
+
+	
 
 };
 
-bool operator==(const FTensionNode& A, const FTensionNode& B);
+bool operator<(const FBlockNode& A, const FBlockNode& B);
 
 USTRUCT()
 struct EDDOFSPADES_API FFallingBlocksList
@@ -50,20 +54,22 @@ class EDDOFSPADES_API UBlockPhysics : public UObject
 	GENERATED_BODY()
 	
 private:
-	const int8 MaxTensionPerBlock = 5;
-	const int8 BreakOffTension = 3;
-	const int32 MaxFallingBlocksAtATime = 16;
+	TArray<FBlockNode> BlockNodes;
 
 	UPROPERTY()
 	class AEddOfSpadesGameState* GameState;
 	
 public:
+	UBlockPhysics();
+
 	bool CheckIfBlocksWillFall(AEddOfSpadesGameState* GameState, const FIntVector& BlockPosition, FBlockPhysicsResult& OutResult);
 
 private:
-	bool AnalyzeChangedBlock(const FIntVector& Block, FFallingBlocksList& OutFallingBlocks);
-	bool BlockIsSupport(const FIntVector& Block);
-	void AddNeigbourIfValid(FTensionNode& Current, const FIntVector& Offset, TArray<FTensionNode>& List);
-	void BreakOfBlocksUnderTension(const FIntVector& Block, int32 DistanceFromOrigin, int32 MaxTension, FFallingBlocksList& BlocksToFall);
+	void AnalyzeChangedBlock(const FIntVector& Block, FFallingBlocksList& OutFallingBlocks);
+	void AddNeigbourIfValid(int32 x, int32 y, int32 z, FBlockNode* Origin, TArray<FBlockNode*>& Closed, TArray<FBlockNode*>& Open);
+
+	void SetUpNodeArray();
+
+	FBlockNode* GetNode(int32 X, int32 Y, int32 Z);
 
 };

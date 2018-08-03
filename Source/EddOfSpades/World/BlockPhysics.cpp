@@ -3,6 +3,11 @@
 #include "BlockPhysics.h"
 #include "EddOfSpadesGameState.h"
 
+UBlockPhysics::UBlockPhysics()
+{
+	SetUpNodeArray();
+}
+
 bool UBlockPhysics::CheckIfBlocksWillFall(AEddOfSpadesGameState* GameState, const FIntVector& Block, FBlockPhysicsResult& OutResult)
 {
 	this->GameState = GameState;
@@ -12,20 +17,15 @@ bool UBlockPhysics::CheckIfBlocksWillFall(AEddOfSpadesGameState* GameState, cons
 	OutResult.MaxBlock = Block;
 	OutResult.MinBlock = Block;
 
+	// If the block became air, analyze the blocks around it
 	if(GameState->IsBlockAirAt(Block))
 	{
-		// If the block became air, analyze the blocks around it
 		AnalyzeChangedBlock({Block.X + 1, Block.Y, Block.Z}, OutResult.BlocksToFall.Add_GetRef(FFallingBlocksList()));
 		AnalyzeChangedBlock({Block.X - 1, Block.Y, Block.Z}, OutResult.BlocksToFall.Add_GetRef(FFallingBlocksList()));
 		AnalyzeChangedBlock({Block.X, Block.Y + 1, Block.Z}, OutResult.BlocksToFall.Add_GetRef(FFallingBlocksList()));
 		AnalyzeChangedBlock({Block.X, Block.Y - 1, Block.Z}, OutResult.BlocksToFall.Add_GetRef(FFallingBlocksList()));
 		AnalyzeChangedBlock({Block.X, Block.Y, Block.Z + 1}, OutResult.BlocksToFall.Add_GetRef(FFallingBlocksList()));
 		AnalyzeChangedBlock({Block.X, Block.Y, Block.Z - 1}, OutResult.BlocksToFall.Add_GetRef(FFallingBlocksList()));
-	}
-	else
-	{
-		// If a block was placed, analyze that block
-		AnalyzeChangedBlock(Block, OutResult.BlocksToFall.Add_GetRef(FFallingBlocksList()));
 	}
 
 	// Fin the min and max blocks, this is used for chunk refreshes later on
@@ -59,153 +59,113 @@ bool UBlockPhysics::CheckIfBlocksWillFall(AEddOfSpadesGameState* GameState, cons
 	return bBlocksFell;
 }
 
-bool UBlockPhysics::AnalyzeChangedBlock(const FIntVector& Block, FFallingBlocksList& OutFallingBlocks)
+void UBlockPhysics::AnalyzeChangedBlock(const FIntVector& Block, FFallingBlocksList& OutFallingBlocks)
 {
 	// Check bounds
 	if(Block.X >= 0 && Block.Y >= 0 && Block.Z >= 0 &&
 		Block.X < GameConstants::WorldBlockCount && Block.Y < GameConstants::WorldBlockCount && Block.Z < GameConstants::WorldHeight)
 	{
-		TArray<FTensionNode> BlocksToCheck;
-
-		// Create the origin
-		FTensionNode Origin;
-		Origin.DistanceFromOrigin = 0;
-		Origin.Position = Block;
-
-		BlocksToCheck.Add(Origin);
+		// Ignore air blocks
+		if(GameState->IsBlockAirAt(Block.X, Block.Y, Block.Z))
+		{
+			return;
+		}
 
 		bool bBlocksWillFall = true;
-		bool bNoSupports = true;
-		// Loop through all blocks to check, ordered after distance from origin
-		for(int i = 0; i < BlocksToCheck.Num(); i++)
-		{
-			FTensionNode& Current = BlocksToCheck[i];
 
-			// Check if this is a stable block
-			if(BlockIsSupport(Current.Position))
+		TArray<FBlockNode*> ClosedSet;
+		TArray<FBlockNode*> OpenSet;
+
+		GetNode(Block.X, Block.Y, Block.Z)->StartCost = 0;
+		OpenSet.Add(GetNode(Block.X, Block.Y, Block.Z));
+
+		while(OpenSet.Num() > 0)
+		{
+			// Get the node with the lowest cost in OpenSet
+			OpenSet.Sort();
+			FBlockNode* CurrentBlock = OpenSet[0];
+			OpenSet.RemoveAt(0, 1, false);
+
+			// Add current to closed set, to prevent it from getting checked again
+			ClosedSet.Add(CurrentBlock);
+
+			// Check if this is the ground
+			if(CurrentBlock->Position.Z == 0)
 			{
-				// Check if tension is within bounds
-				if(Current.DistanceFromOrigin < MaxTensionPerBlock)
-				{
-					bBlocksWillFall = false;
-				}
-				bNoSupports = false;
+				bBlocksWillFall = false;
+				break;
 			}
-			else
-			{
-				// Get neighbours
-				AddNeigbourIfValid(Current, {-1, 0, 0}, BlocksToCheck);
-				AddNeigbourIfValid(Current, {0, -1, 0}, BlocksToCheck);
-				AddNeigbourIfValid(Current, {0, 0, -1}, BlocksToCheck);
-				AddNeigbourIfValid(Current, {1, 0, 0}, BlocksToCheck);
-				AddNeigbourIfValid(Current, {0, 1, 0}, BlocksToCheck);
-				AddNeigbourIfValid(Current, {0, 0, 1}, BlocksToCheck);
-			}
+
+			// Go through each neighbour and evaluate them
+			AddNeigbourIfValid(CurrentBlock->Position.X + 1, CurrentBlock->Position.Y, CurrentBlock->Position.Z, CurrentBlock, ClosedSet, OpenSet);
+			AddNeigbourIfValid(CurrentBlock->Position.X - 1, CurrentBlock->Position.Y, CurrentBlock->Position.Z, CurrentBlock, ClosedSet, OpenSet);
+			AddNeigbourIfValid(CurrentBlock->Position.X, CurrentBlock->Position.Y + 1, CurrentBlock->Position.Z, CurrentBlock, ClosedSet, OpenSet);
+			AddNeigbourIfValid(CurrentBlock->Position.X, CurrentBlock->Position.Y - 1, CurrentBlock->Position.Z, CurrentBlock, ClosedSet, OpenSet);
+			AddNeigbourIfValid(CurrentBlock->Position.X, CurrentBlock->Position.Y, CurrentBlock->Position.Z + 1, CurrentBlock, ClosedSet, OpenSet);
+			AddNeigbourIfValid(CurrentBlock->Position.X, CurrentBlock->Position.Y, CurrentBlock->Position.Z - 1, CurrentBlock, ClosedSet, OpenSet);
+
 		}
 
-		if(bNoSupports)
+		if(bBlocksWillFall)
 		{
-
-			BreakOfBlocksUnderTension(Origin.Position, 0, MaxFallingBlocksAtATime, OutFallingBlocks);
-
-		}
-		else if(bBlocksWillFall)
-		{
-
-			// Tension is too big! Break of blocks from the origin
-			BreakOfBlocksUnderTension(Origin.Position, 0, BreakOffTension, OutFallingBlocks);
-
+			for(const FBlockNode* Node : ClosedSet)
+			{
+				OutFallingBlocks.Blocks.Add(Node->Position);
+			}
 		}
 	}
-
-
-
-	return false;
 }
 
-bool UBlockPhysics::BlockIsSupport(const FIntVector& Block)
+void UBlockPhysics::AddNeigbourIfValid(int32 x, int32 y, int32 z, FBlockNode* Origin, TArray<FBlockNode*>& Closed, TArray<FBlockNode*>& Open)
 {
-
-	for(int32 Z = Block.Z - 1; Z >= 0; Z--)
+	// Check bounds first
+	if(x >= 0 && y >= 0 && z >= 0 &&
+		x < GameConstants::WorldBlockCount && y < GameConstants::WorldBlockCount && z < GameConstants::WorldHeight)
 	{
-		if(GameState->IsBlockAirAt({Block.X, Block.Y, Z}))
+		// Only add solid blocks
+		if(!GameState->IsBlockAirAt(x, y, z))
 		{
-			// Block is not a support, it has air below it
-			return false;
+			// Make sure it hasn't already beeen checked
+			if(!Closed.Contains(GetNode(x, y, z)) && !Open.Contains(GetNode(x, y, z)))
+			{
+				FIntVector Offset = FIntVector(x, y, z) - Origin->Position;
+				GetNode(x, y, z)->StartCost = abs(Offset.X) + abs(Offset.Y) + abs(Offset.Z);
+				Open.Add(GetNode(x, y, z));
+
+			}
+
 		}
+
 	}
 
-	// Block is support
-	return true;
 }
 
-void UBlockPhysics::AddNeigbourIfValid(FTensionNode& Current, const FIntVector& Offset, TArray<FTensionNode>& List)
+void UBlockPhysics::SetUpNodeArray()
 {
-	FIntVector Block = Current.Position + Offset;
+	BlockNodes.Empty();
+	BlockNodes.AddDefaulted(GameConstants::TotalBlocks);
 
-	// Check bounds
-	if(Block.X >= 0 && Block.Y >= 0 && Block.Z >= 0 &&
-		Block.X < GameConstants::WorldBlockCount && Block.Y < GameConstants::WorldBlockCount && Block.Z < GameConstants::WorldHeight)
+	for(int32 x = 0; x < GameConstants::WorldBlockCount; x++)
 	{
-		// Don't consider air blocks
-		if(!GameState->IsBlockAirAt(Block))
+		for(int32 y = 0; y < GameConstants::WorldBlockCount; y++)
 		{
-			FTensionNode Neighbour;
-			Neighbour.DistanceFromOrigin = Current.DistanceFromOrigin + 1;
-			Neighbour.Position = Block;
-
-			// Prevent looping
-			int32 Old = 0;
-			if(List.Find(Neighbour, Old))
+			for(int32 z = 0; z < GameConstants::WorldHeight; z++)
 			{
-				if(List[Old].DistanceFromOrigin > Neighbour.DistanceFromOrigin)
-				{
-					List[Old].DistanceFromOrigin = Neighbour.DistanceFromOrigin;
-				}
-			}
-			else
-			{
-				List.Add(Neighbour);
+				GetNode(x, y, z)->Position = FIntVector(x, y, z);
+				GetNode(x, y, z)->GroundCost = z;
 			}
 		}
 	}
-
 }
 
-void UBlockPhysics::BreakOfBlocksUnderTension(const FIntVector& Block, int32 DistanceFromOrigin, int32 MaxTension, FFallingBlocksList& BlocksToFall)
+FBlockNode* UBlockPhysics::GetNode(int32 X, int32 Y, int32 Z)
 {
-	// Make sure it has not already been checked
-	if(!BlocksToFall.Blocks.Contains(Block))
-	{
-		// Check bounds
-		if(Block.X >= 0 && Block.Y >= 0 && Block.Z >= 0 &&
-			Block.X < GameConstants::WorldBlockCount && Block.Y < GameConstants::WorldBlockCount && Block.Z < GameConstants::WorldHeight)
-		{
-			// Make sure not do make an air block fall
-			if(!GameState->IsBlockAirAt(Block))
-			{
-				// Make this block fall
-				BlocksToFall.Blocks.Add(Block);
-
-				// Check if the tension level of this block is withing breakof tension
-				if(DistanceFromOrigin < MaxTension)
-				{
-					BreakOfBlocksUnderTension({Block.X - 1, Block.Y, Block.Z}, DistanceFromOrigin + 1, MaxTension, BlocksToFall);
-					BreakOfBlocksUnderTension({Block.X, Block.Y - 1, Block.Z}, DistanceFromOrigin + 1, MaxTension, BlocksToFall);
-					BreakOfBlocksUnderTension({Block.X, Block.Y, Block.Z - 1}, DistanceFromOrigin + 1, MaxTension, BlocksToFall);
-					BreakOfBlocksUnderTension({Block.X + 1, Block.Y, Block.Z}, DistanceFromOrigin + 1, MaxTension, BlocksToFall);
-					BreakOfBlocksUnderTension({Block.X, Block.Y + 1, Block.Z}, DistanceFromOrigin + 1, MaxTension, BlocksToFall);
-					BreakOfBlocksUnderTension({Block.X, Block.Y, Block.Z + 1}, DistanceFromOrigin + 1, MaxTension, BlocksToFall);
-				}
-			}
-		}
-	}
+	return &BlockNodes[X + GameConstants::WorldBlockCount * (Y + Z * GameConstants::WorldBlockCount)];
 }
 
-
-bool operator==(const FTensionNode& A, const FTensionNode& B)
+bool operator<(const FBlockNode& A, const FBlockNode& B)
 {
 	
-	return A.Position == B.Position;
+	return A.StartCost + A.GroundCost < B.StartCost + B.GroundCost;
 	
 }

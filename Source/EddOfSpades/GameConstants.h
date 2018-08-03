@@ -17,6 +17,7 @@ public:
 	const static int64 WorldHeight;
 	const static int64 WorldBlockCount;
 	const static int64 TotalChunks;
+	const static int64 TotalBlocks;
 	const static int32 DefaultClientPort;
 	const static int32 DefaultServerPort;
 
