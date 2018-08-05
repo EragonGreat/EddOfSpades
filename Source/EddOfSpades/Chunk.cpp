@@ -229,8 +229,7 @@ void AChunk::AddBlockMeshVertices(int32 BlockX, int32 BlockY, int32 BlockZ,
 
 void AChunk::GenerateMeshFromBlockData()
 {
-
-	MeshMutex.Lock();
+	FScopeLock Lock(&MeshMutex);
 
 	for(int32 X = ChunkX * GameConstants::ChunkSize; X < GameConstants::ChunkSize + ChunkX * GameConstants::ChunkSize; X++)
 	{
@@ -246,6 +245,7 @@ void AChunk::GenerateMeshFromBlockData()
 	// Dispatch changes
 	FGraphEventRef Task = FFunctionGraphTask::CreateAndDispatchWhenReady([&]()
 	{
+
 		ProceduralMesh->ClearMeshSection(0);
 		ProceduralMesh->CreateMeshSection_LinearColor(0, Positions, Indices, Normals, UVs, VertexColors, Tangents, true);
 		ProceduralMesh->SetCollisionConvexMeshes({Positions});
@@ -256,8 +256,6 @@ void AChunk::GenerateMeshFromBlockData()
 		Normals.Empty();
 		VertexColors.Empty();
 		Tangents.Empty();
-
-		MeshMutex.Unlock();
 
 	}, TStatId(), NULL, ENamedThreads::GameThread);
 

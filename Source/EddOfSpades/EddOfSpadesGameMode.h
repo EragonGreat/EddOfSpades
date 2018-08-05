@@ -15,7 +15,8 @@ class AEddOfSpadesGameMode : public AGameMode
 private:
 	TArray<AEddOfSpadesPlayerController*> PlayerControllers;
 
-	class AEddOfSpadesGameState* GameState; 
+	UPROPERTY()
+	AEddOfSpadesGameState* EddGameState; 
 
 	UPROPERTY()
 	class UServerTCP* ServerTCP;
@@ -26,9 +27,11 @@ private:
 	UPROPERTY()
 	class UBlockPhysics* BlockPhysics;
 
-public:
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY()
 	class UWorldLoader* WorldLoader;
+
+	UPROPERTY()
+	class ABlockTransfer* BlockTransfer;
 
 public:
 	AEddOfSpadesGameMode();
@@ -41,9 +44,8 @@ public:
 
 	void RespawnPlayer(AEddOfSpadesPlayerController* Player);
 
-	UFUNCTION()
-	void OnBlockChanged(const FIntVector& Block);
-
+	void UpdateBlock(const FIntVector& Position, const FBlockData& NewBlock);
+	
 	UFUNCTION()
 	void OnStartButtonPressed();
 

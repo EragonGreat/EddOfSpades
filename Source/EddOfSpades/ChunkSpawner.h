@@ -35,9 +35,9 @@ public:
 	AChunkSpawner();
 	~AChunkSpawner();
 
-public:	
+public:
 	void RebuildWorldMesh();
-	
+
 	void RebuildSingleChunk(int32 ChunkX, int32 ChunkY);
 
 	void BlockUpdatedInChunk(int32 ChunkX, int32 ChunkY);

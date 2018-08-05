@@ -64,7 +64,7 @@ void AChunkSpawner::RebuildWorldMesh()
 	if(!bRunThread)
 	{
 		bRunThread = true;
-		ChunkThread = FRunnableThread::Create(this, TEXT("Chunk Mesh Generation Thread"));
+		ChunkThread = FRunnableThread::Create(this, TEXT("Chunk Mesh Generation Thread"), 0, TPri_BelowNormal);
 	}
 
 }
@@ -99,8 +99,11 @@ uint32 AChunkSpawner::Run()
 			bStartWorldReload = false;
 
 			// Craete a load progress bar for generating world mesh
-			int32 ProgressID = HUD->InsertNewProgressItem(TEXT("Building World Mesh"));
-
+			int32 ProgressID = 0;
+			if(HUD)
+			{
+				ProgressID = HUD->InsertNewProgressItem(TEXT("Building World Mesh"));
+			}
 			int32 ChunksBuilt = 0;
 			for(int32 Y = 0; Y < GameConstants::WorldChunkCount; Y++)
 			{
@@ -110,14 +113,20 @@ uint32 AChunkSpawner::Run()
 					SpawnedChunks[X + Y * GameConstants::WorldChunkCount]->GenerateMeshFromBlockData();
 
 					// Update progress
-					ChunksBuilt++;
-					HUD->UpdateProgressItem(ProgressID, (float)ChunksBuilt / GameConstants::TotalChunks);
+					if(HUD)
+					{
+						ChunksBuilt++;
+						HUD->UpdateProgressItem(ProgressID, (float)ChunksBuilt / GameConstants::TotalChunks);
+					}
 
 				}
 			}
 
 			// Cleanup progress bar
-			HUD->RemoveProgressItem(ProgressID);
+			if(HUD)
+			{
+				HUD->RemoveProgressItem(ProgressID);
+			}
 
 			// Dispatch changes
 			FGraphEventRef Task = FFunctionGraphTask::CreateAndDispatchWhenReady([&]()

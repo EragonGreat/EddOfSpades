@@ -44,7 +44,7 @@ void UServerTCP::StartServerTCP()
 	{
 
 		// Starts the socket thread, will start in run() method
-		SocketThread = FRunnableThread::Create(this, TEXT("Server Socket Thread"));
+		SocketThread = FRunnableThread::Create(this, TEXT("Server Socket Thread"), 0, TPri_Lowest);
 
 	}
 

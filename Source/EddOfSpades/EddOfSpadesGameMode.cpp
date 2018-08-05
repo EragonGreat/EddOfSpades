@@ -8,12 +8,15 @@
 #include "World/WorldLoader.h"
 #include "World/BlockPhysics.h"
 #include "World/FallingBlocks.h"
+#include "ChunkSpawner.h"
+#include "Network/BlockTransfer.h"
 #include "GameConstants.h"
 #include "Network/WorldTransferProtocol.h"
 
 AEddOfSpadesGameMode::AEddOfSpadesGameMode()
 	: Super()
-	, ServerTCP(NULL)
+	, ServerTCP(nullptr)
+	, BlockTransfer(nullptr)
 {
 
 	// Setup defaults
@@ -83,7 +86,7 @@ void AEddOfSpadesGameMode::SendWorldToAllConnectedClients()
 		}
 
 		// Send the world to the client
-		WorldTransfer->SendWorldToClient(ServerTCP, GameState, Player);
+		WorldTransfer->SendWorldToClient(ServerTCP, EddGameState, Player);
 	}
 
 }
@@ -109,41 +112,23 @@ void AEddOfSpadesGameMode::RespawnPlayer(AEddOfSpadesPlayerController* Player)
 
 }
 
-void AEddOfSpadesGameMode::OnBlockChanged(const FIntVector& Block)
+void AEddOfSpadesGameMode::UpdateBlock(const FIntVector& Position, const FBlockData& NewBlock)
 {
+
+	// Update the block
+	BlockTransfer->UpdateSingleBlock(Position, NewBlock);
 
 	// Check block physics
 	FBlockPhysicsResult OutResult;
-	if(BlockPhysics->CheckIfBlocksWillFall(GameState, Block, OutResult))
+	if(BlockPhysics->CheckIfBlocksWillFall(EddGameState, Position, OutResult))
 	{
 		// Set all the falling blocks to air
 		for(const FFallingBlocksList& FallingConstruct : OutResult.BlocksToFall)
 		{
-			for(const FIntVector& FallingBlock : FallingConstruct.Blocks)
+			if(FallingConstruct.Blocks.Num() > 0)
 			{
-				GameState->SetBlockIsAirAt(FallingBlock, true);
-
-				// Update all clients
-				for(auto It = GetWorld()->GetPlayerControllerIterator(); It; It++)
-				{
-					AEddOfSpadesPlayerController* Client = Cast<AEddOfSpadesPlayerController>(*It);
-
-					Client->ClientBlockChanged(FallingBlock, GameState->GetBlockAt(FallingBlock), false);
-				}
+				BlockTransfer->DestroyedSeveralBlocks(FallingConstruct.Blocks);
 			}
-		}
-
-		// Tell clients to refresh chunk
-		int32 ChunkXMin = OutResult.MinBlock.X / GameConstants::ChunkSize - 1;
-		int32 ChunkYMin = OutResult.MinBlock.Y / GameConstants::ChunkSize - 1;
-		int32 ChunkXMax = OutResult.MaxBlock.X / GameConstants::ChunkSize + 1;
-		int32 ChunkYMax = OutResult.MaxBlock.Y / GameConstants::ChunkSize + 1;
-		for(auto It = GetWorld()->GetPlayerControllerIterator(); It; It++)
-		{
-			AEddOfSpadesPlayerController* Client = Cast<AEddOfSpadesPlayerController>(*It);
-
-			Client->ClientForceChunkSectionRefresh(ChunkXMin, ChunkYMin, ChunkXMax, ChunkYMax);
-
 		}
 
 		// Spawn the falling blocks actor on the server, replicating it to the clients
@@ -155,32 +140,25 @@ void AEddOfSpadesGameMode::OnBlockChanged(const FIntVector& Block)
 				FallingBlocksActor->SetBlocksThatWillFall(FallingConstruct.Blocks);
 			}
 		}
-
 	}
-
 }
 
 void AEddOfSpadesGameMode::OnStartButtonPressed()
 {
 
 	// Start loading the world
-	WorldLoader->LoadNewWorld(GameState, true);
+	WorldLoader->LoadNewWorld(EddGameState, true);
 
 }
 
 void AEddOfSpadesGameMode::OnWorldLoaded()
 {
 
-	// The world has finished loading
+	// Send the world data to the clients
 	SendWorldToAllConnectedClients();
 
-	// If a local player, tell it to build the world mesh
-	if(GetNetMode() == NM_ListenServer || GetNetMode() == NM_Standalone)
-	{
-
-		Cast<AEddOfSpadesPlayerController>(GetWorld()->GetFirstPlayerController())->RebuildWorldMesh();
-
-	}
+	// Rebuild the world mesh on the server first
+	BlockTransfer->GetChunkSpawner()->RebuildWorldMesh();
 
 }
 
@@ -189,7 +167,10 @@ void AEddOfSpadesGameMode::BeginPlay()
 	Super::BeginPlay();
 
 	// Prepare game object references
-	GameState = GetGameState<AEddOfSpadesGameState>();
+	EddGameState = GetGameState<AEddOfSpadesGameState>();
+
+	// Craete the chunkspawner
+	BlockTransfer = GetWorld()->SpawnActor<ABlockTransfer>();
 
 	// Create the world loader
 	WorldLoader = NewObject<UWorldLoader>();

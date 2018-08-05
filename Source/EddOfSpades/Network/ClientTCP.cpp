@@ -74,7 +74,7 @@ void UClientTCP::StartTCPSocket(class AEddOfSpadesPlayerController* OwningContro
 	// Create the thread for which to listen on
 	if (!SocketThread)
 	{
-		SocketThread = FRunnableThread::Create(this, TEXT("Client Socket Thread"));
+		SocketThread = FRunnableThread::Create(this, TEXT("Client Socket Thread"), 0, TPri_Lowest);
 	}
 
 	// Log an error if failed

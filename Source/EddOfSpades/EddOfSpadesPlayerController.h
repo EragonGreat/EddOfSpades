@@ -19,9 +19,6 @@ class EDDOFSPADES_API AEddOfSpadesPlayerController : public APlayerController
 	
 private:
 	UPROPERTY()
-	class AChunkSpawner* ChunkSpawner;
-
-	UPROPERTY()
 	class AEddOfSpadesGameMode* GameMode;
 
 	UPROPERTY()
@@ -51,22 +48,10 @@ public:
 	void OnWorldMeshBuilt();
 
 	UFUNCTION()
-	void RebuildWorldMesh();
-
-	UFUNCTION()
 	void ClientReceiveNewChunk(const FChunkData& Chunk, int32 ChunkX, int32 ChunkY);
 	
 	UFUNCTION(Client, Reliable)
-	void ClientForceChunkRefresh(const int32& ChunkX, const int32& ChunkY);
-
-	UFUNCTION(Client, Reliable)
-	void ClientForceChunkSectionRefresh(const int32& ChunkXMin, const int32& ChunkYMin, const int32& ChunkXMax, const int32& ChunkYMax);
-
-	UFUNCTION(Client, Reliable)
-	void ClientBlockChanged(const FIntVector& BlockPos, const FBlockData& NewBlockData, bool bShouldRefreshChunk);
-
-	UFUNCTION(Client, Unreliable)
-	void ClientBlocksFellDown(const TArray<FIntVector>& FallingBlocks);
+	void ClientBlockChanged(const FIntVector& BlockPos, const FBlockData& NewBlockData);
 
 	UFUNCTION(BlueprintCallable, Category = "Input", Server, Reliable, WithValidation)
 	void ServerDamageBlock(const FIntVector& BlockPosition);

@@ -22,14 +22,6 @@ void AEddOfSpadesPlayerController::BeginPlay()
 	GameState = GetWorld()->GetGameState<AEddOfSpadesGameState>();
 	GameMode = Cast<AEddOfSpadesGameMode>(GetWorld()->GetAuthGameMode());
 
-	if(IsLocalPlayerController())
-	{
-		// If this player controller is on the owning machine then spawn actors accordingly
-		ChunkSpawner = GetWorld()->SpawnActor<AChunkSpawner>();
-		ChunkSpawner->OnWorldMeshBuilt.AddDynamic(this, &AEddOfSpadesPlayerController::OnWorldMeshBuilt);
-
-	}
-
 	// Create the client TCP only if this is on remote machine
 	if (IsNetMode(ENetMode::NM_Client))
 	{
@@ -47,7 +39,15 @@ void AEddOfSpadesPlayerController::BeginPlay()
 void AEddOfSpadesPlayerController::OnWorldReceived()
 {
 
-	RebuildWorldMesh();
+	// Rebuild the world mesh
+	TArray<AActor*> ChunkSpawners;
+	UGameplayStatics::GetAllActorsOfClass(this, AChunkSpawner::StaticClass(), ChunkSpawners);
+
+	if(ChunkSpawners.Num() > 0)
+	{
+		AChunkSpawner* ChunkSpawner = Cast<AChunkSpawner>(ChunkSpawners[0]);
+		ChunkSpawner->RebuildWorldMesh();
+	}
 
 }
 
@@ -58,13 +58,6 @@ void AEddOfSpadesPlayerController::OnWorldMeshBuilt()
 
 }
 
-void AEddOfSpadesPlayerController::RebuildWorldMesh()
-{
-
-	ChunkSpawner->RebuildWorldMesh();
-
-}
-
 void AEddOfSpadesPlayerController::ClientReceiveNewChunk(const FChunkData& Chunk, int32 ChunkX, int32 ChunkY)
 {
 
@@ -72,51 +65,11 @@ void AEddOfSpadesPlayerController::ClientReceiveNewChunk(const FChunkData& Chunk
 
 }
 
-void AEddOfSpadesPlayerController::ClientBlocksFellDown_Implementation(const TArray<FIntVector>& FallingBlocks)
+void AEddOfSpadesPlayerController::ClientBlockChanged_Implementation(const FIntVector& BlockPos, const FBlockData& NewBlockData)
 {
 
+	GameState->SetBlockAt(BlockPos, NewBlockData);
 
-}
-
-void AEddOfSpadesPlayerController::ClientForceChunkSectionRefresh_Implementation(const int32& ChunkXMin, const int32& ChunkYMin, const int32& ChunkXMax, const int32& ChunkYMax)
-{
-
-	if(ChunkSpawner)
-	{
-		for(int32 i = ChunkXMin; i <= ChunkXMax; i++)
-		{
-			for(int32 j = ChunkYMin; j <= ChunkYMax; j++)
-			{
-
-				ChunkSpawner->RebuildSingleChunk(i, j);
-
-			}
-		}
-	}
-
-}
-
-void AEddOfSpadesPlayerController::ClientForceChunkRefresh_Implementation(const int32& ChunkX, const int32& ChunkY)
-{
-
-	if(ChunkSpawner)
-	{
-		ChunkSpawner->RebuildSingleChunk(ChunkX, ChunkY);
-	}
-
-}
-
-void AEddOfSpadesPlayerController::ClientBlockChanged_Implementation(const FIntVector& BlockPos, const FBlockData& NewBlockData, bool bShouldRefreshChunk)
-{
-	if(ChunkSpawner)
-	{
-		GameState->SetBlockAt(BlockPos, NewBlockData);
-
-		if(bShouldRefreshChunk)
-		{
-			ChunkSpawner->BlockUpdatedInChunk(BlockPos.X / GameConstants::ChunkSize, BlockPos.Y / GameConstants::ChunkSize);
-		}
-	}
 }
 
 void AEddOfSpadesPlayerController::ServerPlaceBlock_Implementation(const FIntVector& BlockPosition, const FBlockColor BlockColor)
@@ -125,20 +78,8 @@ void AEddOfSpadesPlayerController::ServerPlaceBlock_Implementation(const FIntVec
 	PlacedBlock.bIsAir = false;
 	PlacedBlock.Color = BlockColor;
 
-	// Update the server block first
-	GameState->SetBlockAt(BlockPosition, PlacedBlock);
+	GameMode->UpdateBlock(BlockPosition, PlacedBlock);
 
-	// Update the clients
-	for(auto It = GetWorld()->GetPlayerControllerIterator(); It; It++)
-	{
-
-		AEddOfSpadesPlayerController* Player = Cast<AEddOfSpadesPlayerController>(*It);
-
-		Player->ClientBlockChanged(BlockPosition, PlacedBlock, true);
-
-	}
-
-	GameMode->OnBlockChanged(BlockPosition);
 }
 
 bool AEddOfSpadesPlayerController::ServerPlaceBlock_Validate(const FIntVector& BlockPosition, const FBlockColor BlockColor)
@@ -154,19 +95,7 @@ void AEddOfSpadesPlayerController::ServerDamageBlock_Implementation(const FIntVe
 	DestroyedBlock.Color.g = 0;
 	DestroyedBlock.Color.b = 0;
 
-	// Update the server block first
-	GameState->SetBlockAt(BlockPosition, DestroyedBlock);
-
-	for(auto It = GetWorld()->GetPlayerControllerIterator(); It; It++)
-	{
-
-		AEddOfSpadesPlayerController* Player = Cast<AEddOfSpadesPlayerController>(*It);
-
-		Player->ClientBlockChanged(BlockPosition, DestroyedBlock, true);
-		
-	}
-
-	GameMode->OnBlockChanged(BlockPosition);
+	GameMode->UpdateBlock(BlockPosition, DestroyedBlock);
 }
 
 bool AEddOfSpadesPlayerController::ServerDamageBlock_Validate(const FIntVector& BlockPosition)
