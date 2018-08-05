@@ -42,11 +42,11 @@ bool UBlockPhysics::CheckIfBlocksWillFall(AEddOfSpadesGameState* GameState, cons
 			{
 				OutResult.MinBlock.Y = FallingBlock.Y;
 			}
-			if(OutResult.MaxBlock.X > FallingBlock.X)
+			if(OutResult.MaxBlock.X < FallingBlock.X)
 			{
 				OutResult.MaxBlock.X = FallingBlock.X;
 			}
-			if(OutResult.MaxBlock.Y > FallingBlock.Y)
+			if(OutResult.MaxBlock.Y < FallingBlock.Y)
 			{
 				OutResult.MaxBlock.Y = FallingBlock.Y;
 			}

@@ -10,33 +10,39 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWorldMeshBuilt);
 
 UCLASS()
-class EDDOFSPADES_API AChunkSpawner : public AActor
+class EDDOFSPADES_API AChunkSpawner : public AActor, public FRunnable
 {
 	GENERATED_BODY()
 	
 private:
+	class AEddOfSpadesHUD* HUD;
+
 	TArray<AChunk*> SpawnedChunks;
+
+	bool bRunThread;
+	bool bStartWorldReload;
+
+	FRunnableThread* ChunkThread;
+	
+	TQueue<AChunk*, EQueueMode::Spsc> ChunksToBuild;
 
 public:
 	UPROPERTY()
 	FOnWorldMeshBuilt OnWorldMeshBuilt;
 
-public:	
+public:
 	// Sets default values for this actor's properties
 	AChunkSpawner();
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	~AChunkSpawner();
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	void RebuildWorldMesh();
 	
 	void RebuildSingleChunk(int32 ChunkX, int32 ChunkY);
 
 	void BlockUpdatedInChunk(int32 ChunkX, int32 ChunkY);
+
+	virtual uint32 Run() override;
+	virtual void Stop() override;
 
 };

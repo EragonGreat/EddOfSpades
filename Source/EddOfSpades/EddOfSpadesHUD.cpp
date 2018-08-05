@@ -40,7 +40,12 @@ int32 AEddOfSpadesHUD::InsertNewProgressItem(FString Description)
 void AEddOfSpadesHUD::UpdateProgressItem(int32 ProgressID, float NewProgress)
 {
 
-	ProgressItems.Find(ProgressID)->Progress = NewProgress;
+	FProgressItem* Item = ProgressItems.Find(ProgressID);
+
+	if(Item)
+	{
+		Item->Progress = NewProgress;
+	}
 
 }
 

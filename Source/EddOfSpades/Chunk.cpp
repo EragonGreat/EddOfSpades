@@ -4,6 +4,7 @@
 #include "GameConstants.h"
 #include "EddOfSpadesGameState.h"
 #include "ConstructorHelpers.h"
+#include "KismetProceduralMeshLibrary.h"
 
 // Sets default values
 AChunk::AChunk()
@@ -15,7 +16,6 @@ AChunk::AChunk()
 	ProceduralMesh->SetCollisionObjectType(ECC_GameTraceChannel2);
 
 	static ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("Material'/Game/Materials/BlockMaterial.BlockMaterial'"));
-
 	if (Material.Succeeded())
 	{
 		UMaterial* BlockMaterial = Material.Object;
@@ -35,14 +35,13 @@ void AChunk::BeginPlay()
 
 }
 
-// Called every frame
-void AChunk::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-void AChunk::AddBlockMeshVertices(int32 BlockX, int32 BlockY, int32 BlockZ, TArray<FVector>& Positions, TArray<int32>& Indices, TArray<FVector2D>& UVs, TArray<FVector>& Normals, TArray<FLinearColor>& VertexColors, TArray<FProcMeshTangent>& Tangents)
+void AChunk::AddBlockMeshVertices(int32 BlockX, int32 BlockY, int32 BlockZ, 
+	TArray<FVector>& Positions,
+	TArray<int32>& Indices,
+	TArray<FVector2D>& UVs,
+	TArray<FVector>& Normals,
+	TArray<FLinearColor>& VertexColors,
+	TArray<FProcMeshTangent>& Tangents)
 {
 	if (GameState->IsBlockAirAt(BlockX, BlockY, BlockZ))
 	{
@@ -200,7 +199,7 @@ void AChunk::AddBlockMeshVertices(int32 BlockX, int32 BlockY, int32 BlockZ, TArr
 	if (BlockZ > 0 && GameState->IsBlockAirAt(BlockX, BlockY, BlockZ - 1))
 	{
 		// Positions
-		Positions.Append({ v1, v0, v4, v1, v4, v5 });
+		Positions.Append({ v1, v4, v5, v1, v0, v4 });
 
 		// Normals
 		for (int i = 0; i < 6; i++) Normals.Add(FVector(0.f, 0.f, -1.f));
@@ -216,10 +215,13 @@ void AChunk::AddBlockMeshVertices(int32 BlockX, int32 BlockY, int32 BlockZ, TArr
 	int32 LastIndex = Indices.Num();
 	for (int i = 0; i < FaceCount; i++)
 	{
+		//UVs.Append({{0.f, 0.f}, {1.f, 1.f}, {1.f, 0.f}, {0.f, 0.f}, {0.f, 1.f}, {1.f, 1.f}});
+
 		for (int j = 0; j < 6; j++)
 		{
 			Indices.Add(i * 6 + j + LastIndex);
 			VertexColors.Add(VertexColor);
+			
 		}
 	}
 
@@ -227,28 +229,38 @@ void AChunk::AddBlockMeshVertices(int32 BlockX, int32 BlockY, int32 BlockZ, TArr
 
 void AChunk::GenerateMeshFromBlockData()
 {
-	ProceduralMesh->ClearAllMeshSections();
 
-	TArray<FVector> Positions;
-	TArray<int32> Indices;
-	TArray<FVector2D> UVs;
-	TArray<FVector> Normals;
-	TArray<FLinearColor> VertexColors;
-	TArray<FProcMeshTangent> Tangents;
+	MeshMutex.Lock();
 
-	for (int x = ChunkX * GameConstants::ChunkSize; x < GameConstants::ChunkSize + ChunkX * GameConstants::ChunkSize; x++)
+	for(int32 X = ChunkX * GameConstants::ChunkSize; X < GameConstants::ChunkSize + ChunkX * GameConstants::ChunkSize; X++)
 	{
-		for (int y = ChunkY * GameConstants::ChunkSize; y < GameConstants::ChunkSize + ChunkY * GameConstants::ChunkSize; y++)
+		for(int32 Y = ChunkY * GameConstants::ChunkSize; Y < GameConstants::ChunkSize + ChunkY * GameConstants::ChunkSize; Y++)
 		{
-			for (int z = 0; z < GameConstants::WorldHeight; z++)
+			for(int32 Z = 0; Z < GameConstants::WorldHeight; Z++)
 			{
-				AddBlockMeshVertices(x, y, z, Positions, Indices, UVs, Normals, VertexColors, Tangents);
+				AddBlockMeshVertices(X, Y, Z, Positions, Indices, UVs, Normals, VertexColors, Tangents);
 			}
 		}
 	}
 
-	ProceduralMesh->CreateMeshSection_LinearColor(0, Positions, Indices, Normals, UVs, VertexColors, Tangents, true);
-	ProceduralMesh->SetCollisionConvexMeshes({ Positions });
+	// Dispatch changes
+	FGraphEventRef Task = FFunctionGraphTask::CreateAndDispatchWhenReady([&]()
+	{
+		ProceduralMesh->ClearMeshSection(0);
+		ProceduralMesh->CreateMeshSection_LinearColor(0, Positions, Indices, Normals, UVs, VertexColors, Tangents, true);
+		ProceduralMesh->SetCollisionConvexMeshes({Positions});
+
+		Positions.Empty();
+		Indices.Empty();
+		UVs.Empty();
+		Normals.Empty();
+		VertexColors.Empty();
+		Tangents.Empty();
+
+		MeshMutex.Unlock();
+
+	}, TStatId(), NULL, ENamedThreads::GameThread);
+
 
 }
 
@@ -258,3 +270,8 @@ void AChunk::SetChunkPosition(int32 NewChunkX, int32 NewChunkY)
 	ChunkY = NewChunkY;
 }
 
+void AChunk::GetChunkPosition(int32& OutChunkX, int32& OutChunkY)
+{
+	OutChunkX = ChunkX;
+	OutChunkY = ChunkY;
+}

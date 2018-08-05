@@ -87,7 +87,7 @@ void AFallingBlocks::BuildMesh()
 
 	}
 
-	Mesh->CreateMeshSection_LinearColor(0, Positions, Indices, Normals, UVs, VertexColors, Tangents, false);
+	Mesh->CreateMeshSection_LinearColor(0, Positions, Indices, Normals, UVs, VertexColors, Tangents, true);
 	Mesh->SetCollisionConvexMeshes({Positions});
 
 }
@@ -101,6 +101,8 @@ void AFallingBlocks::Tick(float DeltaSeconds)
 
 void AFallingBlocks::SetBlocksThatWillFall(const TArray<FIntVector>& Blocks)
 {
+
+	UE_LOG(LogTemp, Display, TEXT("Falling blocks spawned! Block count: %i"), Blocks.Num());
 
 	// Save the data, it will then be replicated to clients
 	BlocksThatFell = Blocks;

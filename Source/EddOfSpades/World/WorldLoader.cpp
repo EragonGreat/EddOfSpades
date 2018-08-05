@@ -7,6 +7,16 @@
 #include "EddOfSpadesPlayerController.h"
 #include "EddOfSpadesHUD.h"
 
+UWorldLoader::~UWorldLoader()
+{
+
+	if(bRunThread)
+	{
+		LoadThread->Kill(true);
+	}
+
+}
+
 void UWorldLoader::Exit()
 {
 
@@ -17,6 +27,15 @@ void UWorldLoader::Exit()
 		OnWorldLoaded.Broadcast();
 
 	}, TStatId(), NULL, ENamedThreads::GameThread);
+
+	bRunThread = false;
+}
+
+bool UWorldLoader::Init()
+{
+	bRunThread = true;
+
+	return true;
 }
 
 void UWorldLoader::LoadNewWorld(class AEddOfSpadesGameState* GameState, bool bProcedural)
@@ -96,6 +115,6 @@ uint32 UWorldLoader::Run()
 void UWorldLoader::Stop()
 {
 
-
+	bRunThread = false;
 
 }

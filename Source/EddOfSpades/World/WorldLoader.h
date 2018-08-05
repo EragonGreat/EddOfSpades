@@ -22,6 +22,7 @@ private:
 
 	FRunnableThread* LoadThread;
 
+	bool bRunThread;
 	bool bProcedural;
 
 public:
@@ -31,7 +32,12 @@ public:
 
 	virtual void Exit() override;
 
+
+	virtual bool Init() override;
+
 public:
+	~UWorldLoader();
+
 	void LoadNewWorld(class AEddOfSpadesGameState* GameState, bool bProcedural);
 
 	virtual uint32 Run() override;

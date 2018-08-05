@@ -144,28 +144,19 @@ void AEddOfSpadesGameMode::OnBlockChanged(const FIntVector& Block)
 
 			Client->ClientForceChunkSectionRefresh(ChunkXMin, ChunkYMin, ChunkXMax, ChunkYMax);
 
-
 		}
 
 		// Spawn the falling blocks actor on the server, replicating it to the clients
 		for(const FFallingBlocksList& FallingConstruct : OutResult.BlocksToFall)
 		{
-			AFallingBlocks* FallingBlocksActor = GetWorld()->SpawnActor<AFallingBlocks>(FVector(0, 0, 0), FRotator(0, 0, 0));
-			FallingBlocksActor->SetBlocksThatWillFall(FallingConstruct.Blocks);
+			if(FallingConstruct.Blocks.Num() > 0)
+			{
+				AFallingBlocks* FallingBlocksActor = GetWorld()->SpawnActor<AFallingBlocks>(FVector(0, 0, 0), FRotator(0, 0, 0));
+				FallingBlocksActor->SetBlocksThatWillFall(FallingConstruct.Blocks);
+			}
 		}
 
 	}
-
-	//// TODO REMOVE!!
-	for(auto It = GetWorld()->GetPlayerControllerIterator(); It; It++)
-	{
-		AEddOfSpadesPlayerController* Client = Cast<AEddOfSpadesPlayerController>(*It);
-
-		Client->ClientForceChunkRefresh(0, 0);
-
-
-	}
-
 
 }
 

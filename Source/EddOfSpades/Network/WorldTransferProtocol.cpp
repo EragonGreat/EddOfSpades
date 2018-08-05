@@ -166,6 +166,7 @@ void UWorldTransferProtocol::StartTransfering()
 
 }
 
+#pragma optimize( "", off )
 int32 UWorldTransferProtocol::ReadInteger(uint8* Data, int32 Offset)
 {
 
@@ -193,3 +194,4 @@ void UWorldTransferProtocol::WriteInteger(uint8* Data, int32 Integer, int32 Offs
 	}
 
 }
+#pragma optimize( "", on )

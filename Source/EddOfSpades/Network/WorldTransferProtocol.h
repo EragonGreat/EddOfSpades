@@ -49,7 +49,9 @@ public:
 private:
 	void StartTransfering();
 
+	// Prevent these functions from being optimized, as it breaks them
+#pragma optimize( "", off )
 	int32 ReadInteger(uint8* Data, int32 Offset);
 	void WriteInteger(uint8* Data, int32 Integer, int32 Offset);
-
+#pragma optimize( "", on )
 };
