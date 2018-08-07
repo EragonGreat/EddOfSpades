@@ -8,7 +8,7 @@ public class EddOfSpades : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "Sockets", "Networking" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "ProceduralMeshComponent", "Sockets", "Networking", "ShaderCore", "RenderCore", "RHI", "RuntimeMeshComponent" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
     }

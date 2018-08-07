@@ -4,6 +4,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "ProceduralMeshComponent.h"
+#include "RuntimeMeshComponent.h"
 #include "Chunk.generated.h"
 
 UCLASS()
@@ -13,7 +14,9 @@ class EDDOFSPADES_API AChunk : public AActor
 	
 private:
 	UPROPERTY(VisibleAnywhere)
-	UProceduralMeshComponent* ProceduralMesh;
+	URuntimeMeshComponent* RuntimeMesh;
+
+	bool bMeshIsGenerated;
 
 	FCriticalSection MeshMutex;
 
@@ -28,8 +31,8 @@ private:
 	TArray<int32> Indices;
 	TArray<FVector2D> UVs;
 	TArray<FVector> Normals;
-	TArray<FLinearColor> VertexColors;
-	TArray<FProcMeshTangent> Tangents;
+	TArray<FColor> VertexColors;
+	TArray<FRuntimeMeshTangent> Tangents;
 	
 public:	
 	// Sets default values for this actor's properties
@@ -50,6 +53,6 @@ private:
 		TArray<int32>& Indices,
 		TArray<FVector2D>& UVs,
 		TArray<FVector>& Normals,
-		TArray<FLinearColor>& VertexColors,
-		TArray<FProcMeshTangent>& Tangents);
+		TArray<FColor>& VertexColors,
+		TArray<FRuntimeMeshTangent>& Tangents);
 };
