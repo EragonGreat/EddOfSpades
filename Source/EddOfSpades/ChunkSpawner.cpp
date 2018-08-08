@@ -2,8 +2,8 @@
 
 #include "ChunkSpawner.h"
 #include "EngineUtils.h"
-#include "EddOfSpadesPlayerController.h"
-#include "EddOfSpadesHUD.h"
+#include "InGame/IGPlayerController.h"
+#include "InGame/IGHUD.h"
 #include "GameConstants.h"
 
 // Sets default values
@@ -29,10 +29,10 @@ AChunkSpawner::~AChunkSpawner()
 void AChunkSpawner::RebuildWorldMesh()
 {
 	// Get a reference to the HUD, this is to update progress bars and such
-	AEddOfSpadesPlayerController* LocalController = Cast<AEddOfSpadesPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
+	AIGPlayerController* LocalController = Cast<AIGPlayerController>(UGameplayStatics::GetPlayerController(this, 0));
 	if(LocalController)
 	{
-		HUD = Cast<AEddOfSpadesHUD>(LocalController->GetHUD());
+		HUD = Cast<AIGHUD>(LocalController->GetHUD());
 	}
 
 	// Delete all the old chunks, if any

@@ -2,7 +2,7 @@
 
 #include "Chunk.h"
 #include "GameConstants.h"
-#include "EddOfSpadesGameState.h"
+#include "InGame/IGGameState.h"
 #include "ConstructorHelpers.h"
 #include "KismetProceduralMeshLibrary.h"
 
@@ -31,9 +31,10 @@ AChunk::AChunk()
 // Called when the game starts or when spawned
 void AChunk::BeginPlay()
 {
+
 	Super::BeginPlay();
 	
-	GameState = GetWorld()->GetGameState<AEddOfSpadesGameState>();
+	GameState = GetWorld()->GetGameState<AIGGameState>();
 
 }
 

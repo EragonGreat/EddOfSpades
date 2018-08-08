@@ -3,9 +3,9 @@
 #include "WorldLoader.h"
 #include "FastNoise/FastNoise.h"
 #include "GameConstants.h"
-#include "EddOfSpadesGameState.h"
-#include "EddOfSpadesPlayerController.h"
-#include "EddOfSpadesHUD.h"
+#include "InGame/IGGameState.h"
+#include "InGame/IGPlayerController.h"
+#include "InGame/IGHUD.h"
 
 UWorldLoader::~UWorldLoader()
 {
@@ -38,7 +38,7 @@ bool UWorldLoader::Init()
 	return true;
 }
 
-void UWorldLoader::LoadNewWorld(class AEddOfSpadesGameState* GameState, bool bProcedural)
+void UWorldLoader::LoadNewWorld(class AIGGameState* GameState, bool bProcedural)
 {
 
 	this->bProcedural = bProcedural;
@@ -49,7 +49,7 @@ void UWorldLoader::LoadNewWorld(class AEddOfSpadesGameState* GameState, bool bPr
 	if(LocalController)
 	{
 
-		HUD = Cast<AEddOfSpadesHUD>(Cast<AEddOfSpadesPlayerController>(LocalController)->GetHUD());
+		HUD = Cast<AIGHUD>(Cast<AIGPlayerController>(LocalController)->GetHUD());
 
 	}
 

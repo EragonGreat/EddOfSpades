@@ -24,7 +24,7 @@ private:
 	int32 ChunkY;
 
 	UPROPERTY()
-	class AEddOfSpadesGameState* GameState;
+	class AIGGameState* GameState;
 
 	//Arrays to describe mesh
 	TArray<FVector> Positions;

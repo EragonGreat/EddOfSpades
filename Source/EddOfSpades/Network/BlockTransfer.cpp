@@ -148,7 +148,7 @@ void ABlockTransfer::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GameState = GetWorld()->GetGameState<AEddOfSpadesGameState>();
+	GameState = GetWorld()->GetGameState<AIGGameState>();
 
 	// Spawn the chunk spawner
 	ChunkSpawner = GetWorld()->SpawnActor<AChunkSpawner>();

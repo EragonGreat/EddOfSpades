@@ -3,9 +3,9 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EddOfSpadesGameState.h"
+#include "IGGameState.h"
 #include "GameFramework/PlayerController.h"
-#include "EddOfSpadesPlayerController.generated.h"
+#include "IGPlayerController.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartButtonPressed);
 
@@ -13,16 +13,16 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnStartButtonPressed);
  * 
  */
 UCLASS()
-class EDDOFSPADES_API AEddOfSpadesPlayerController : public APlayerController
+class EDDOFSPADES_API AIGPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
 private:
 	UPROPERTY()
-	class AEddOfSpadesGameMode* GameMode;
+	class AIGGameMode* GameMode;
 
 	UPROPERTY()
-	AEddOfSpadesGameState* GameState;
+	AIGGameState* GameState;
 
 	UPROPERTY()
 	class UClientTCP* ClientTCP;

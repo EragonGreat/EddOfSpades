@@ -4,8 +4,8 @@
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 #include "GameConstants.h"
-#include "EddOfSpadesPlayerController.h"
-#include "EddOfSpadesGameState.h"
+#include "InGame/IGPlayerController.h"
+#include "InGame/IGGameState.h"
 
 UClientTCP::UClientTCP()
 	: ClientSocket(NULL)
@@ -66,7 +66,7 @@ bool UClientTCP::WaitForServerConnection(int32 GamePort)
 
 }
 
-void UClientTCP::StartTCPSocket(class AEddOfSpadesPlayerController* OwningController)
+void UClientTCP::StartTCPSocket(class AIGPlayerController* OwningController)
 {
 	// Set the owner
 	this->OwningController = OwningController;

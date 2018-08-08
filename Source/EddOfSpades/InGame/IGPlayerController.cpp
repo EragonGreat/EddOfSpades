@@ -1,15 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "EddOfSpadesPlayerController.h"
-#include "EddOfSpadesGameState.h"
-#include "EddOfSpadesGameMode.h"
+#include "IGPlayerController.h"
+#include "IGGameState.h"
+#include "IGGameMode.h"
 #include "Network/ClientTCP.h"
-#include "EddOfSpadesCharacter.h"
+#include "IGCharacter.h"
 #include "ChunkSpawner.h"
 #include "World/FallingBlocks.h"
 #include "Network/WorldTransferProtocol.h"
 
-void AEddOfSpadesPlayerController::BeginPlay()
+void AIGPlayerController::BeginPlay()
 {
 
 	Super::BeginPlay();
@@ -19,8 +19,8 @@ void AEddOfSpadesPlayerController::BeginPlay()
 	SelectedColor.b = 0;
 
 	// Get Game class references
-	GameState = GetWorld()->GetGameState<AEddOfSpadesGameState>();
-	GameMode = Cast<AEddOfSpadesGameMode>(GetWorld()->GetAuthGameMode());
+	GameState = GetWorld()->GetGameState<AIGGameState>();
+	GameMode = Cast<AIGGameMode>(GetWorld()->GetAuthGameMode());
 
 	// Create the client TCP only if this is on remote machine
 	if (IsNetMode(ENetMode::NM_Client))
@@ -31,12 +31,12 @@ void AEddOfSpadesPlayerController::BeginPlay()
 		// Wait for the world to be received
 		WorldTransfer = NewObject<UWorldTransferProtocol>();
 		WorldTransfer->ReceiveWorldFromServer(ClientTCP, GameState, this);
-		WorldTransfer->OnWorldReceived.AddDynamic(this, &AEddOfSpadesPlayerController::OnWorldReceived);
+		WorldTransfer->OnWorldReceived.AddDynamic(this, &AIGPlayerController::OnWorldReceived);
 	}
 
 }
 
-void AEddOfSpadesPlayerController::OnWorldReceived()
+void AIGPlayerController::OnWorldReceived()
 {
 
 	// Rebuild the world mesh
@@ -51,28 +51,28 @@ void AEddOfSpadesPlayerController::OnWorldReceived()
 
 }
 
-void AEddOfSpadesPlayerController::OnWorldMeshBuilt()
+void AIGPlayerController::OnWorldMeshBuilt()
 {
 
 	ServerRequestSpawn();
 
 }
 
-void AEddOfSpadesPlayerController::ClientReceiveNewChunk(const FChunkData& Chunk, int32 ChunkX, int32 ChunkY)
+void AIGPlayerController::ClientReceiveNewChunk(const FChunkData& Chunk, int32 ChunkX, int32 ChunkY)
 {
 
 	GameState->SetChunk(Chunk, ChunkX, ChunkY);
 
 }
 
-void AEddOfSpadesPlayerController::ClientBlockChanged_Implementation(const FIntVector& BlockPos, const FBlockData& NewBlockData)
+void AIGPlayerController::ClientBlockChanged_Implementation(const FIntVector& BlockPos, const FBlockData& NewBlockData)
 {
 
 	GameState->SetBlockAt(BlockPos, NewBlockData);
 
 }
 
-void AEddOfSpadesPlayerController::ServerPlaceBlock_Implementation(const FIntVector& BlockPosition, const FBlockColor BlockColor)
+void AIGPlayerController::ServerPlaceBlock_Implementation(const FIntVector& BlockPosition, const FBlockColor BlockColor)
 {
 	FBlockData PlacedBlock;
 	PlacedBlock.bIsAir = false;
@@ -82,12 +82,12 @@ void AEddOfSpadesPlayerController::ServerPlaceBlock_Implementation(const FIntVec
 
 }
 
-bool AEddOfSpadesPlayerController::ServerPlaceBlock_Validate(const FIntVector& BlockPosition, const FBlockColor BlockColor)
+bool AIGPlayerController::ServerPlaceBlock_Validate(const FIntVector& BlockPosition, const FBlockColor BlockColor)
 {
 	return true;
 }
 
-void AEddOfSpadesPlayerController::ServerDamageBlock_Implementation(const FIntVector& BlockPosition)
+void AIGPlayerController::ServerDamageBlock_Implementation(const FIntVector& BlockPosition)
 {
 	FBlockData DestroyedBlock;
 	DestroyedBlock.bIsAir = true;
@@ -98,17 +98,17 @@ void AEddOfSpadesPlayerController::ServerDamageBlock_Implementation(const FIntVe
 	GameMode->UpdateBlock(BlockPosition, DestroyedBlock);
 }
 
-bool AEddOfSpadesPlayerController::ServerDamageBlock_Validate(const FIntVector& BlockPosition)
+bool AIGPlayerController::ServerDamageBlock_Validate(const FIntVector& BlockPosition)
 {
 	return true;
 }
 
-bool AEddOfSpadesPlayerController::ServerStartButonPressed_Validate()
+bool AIGPlayerController::ServerStartButonPressed_Validate()
 {
 	return true;
 }
 
-void AEddOfSpadesPlayerController::ServerStartButonPressed_Implementation()
+void AIGPlayerController::ServerStartButonPressed_Implementation()
 {
 
 	if(GameMode)
@@ -118,7 +118,7 @@ void AEddOfSpadesPlayerController::ServerStartButonPressed_Implementation()
 
 }
 
-void AEddOfSpadesPlayerController::ServerRequestSpawn_Implementation()
+void AIGPlayerController::ServerRequestSpawn_Implementation()
 {
 
 	// Possess the default pawn for the player that finished loading
@@ -126,7 +126,7 @@ void AEddOfSpadesPlayerController::ServerRequestSpawn_Implementation()
 
 }
 
-bool AEddOfSpadesPlayerController::ServerRequestSpawn_Validate()
+bool AIGPlayerController::ServerRequestSpawn_Validate()
 {
 
 	return true;

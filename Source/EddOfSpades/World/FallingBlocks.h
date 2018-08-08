@@ -36,7 +36,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	void AddBlockMesh(class AEddOfSpadesGameState* GameState, const FIntVector& Block, TArray<FVector>& Positions, TArray<int32>& Indices, TArray<FLinearColor>& VertexColors);
+	void AddBlockMesh(class AIGGameState* GameState, const FIntVector& Block, TArray<FVector>& Positions, TArray<int32>& Indices, TArray<FLinearColor>& VertexColors);
 	
 	void BuildMesh();
 

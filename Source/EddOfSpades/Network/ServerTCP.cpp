@@ -3,7 +3,7 @@
 #include "ServerTCP.h"
 #include "Sockets.h"
 #include "SocketSubsystem.h"
-#include "EddOfSpadesPlayerController.h"
+#include "InGame/IGPlayerController.h"
 
 UServerTCP::UServerTCP()
 	: ClientPort(GameConstants::DefaultServerPort)
@@ -50,7 +50,7 @@ void UServerTCP::StartServerTCP()
 
 }
 
-bool UServerTCP::EstablishConnectionToClient(AEddOfSpadesPlayerController* OwningController)
+bool UServerTCP::EstablishConnectionToClient(AIGPlayerController* OwningController)
 {
 
 	const FString& AddressString = OwningController->GetPlayerNetworkAddress();
@@ -92,7 +92,7 @@ bool UServerTCP::EstablishConnectionToClient(AEddOfSpadesPlayerController* Ownin
 
 }
 
-void UServerTCP::AddClientForConnection(AEddOfSpadesPlayerController* OwningController)
+void UServerTCP::AddClientForConnection(AIGPlayerController* OwningController)
 {
 
 	// Add the controller to the connection queue, the other thread will automatically grab it
@@ -100,7 +100,7 @@ void UServerTCP::AddClientForConnection(AEddOfSpadesPlayerController* OwningCont
 
 }
 
-bool UServerTCP::SendDataTo(AEddOfSpadesPlayerController* OwningController, int32 DataSize, uint8* DataPtr)
+bool UServerTCP::SendDataTo(AIGPlayerController* OwningController, int32 DataSize, uint8* DataPtr)
 {
 
 	// Check that the controller is represented by a socket
@@ -133,7 +133,7 @@ uint32 UServerTCP::Run()
 		while(!ClientsToConnectTo.IsEmpty())
 		{
 			// A new client needs to be connected to
-			AEddOfSpadesPlayerController* OwningController;
+			AIGPlayerController* OwningController;
 			
 			// Get the new controller from the queue
 			if (ClientsToConnectTo.Dequeue(OwningController))

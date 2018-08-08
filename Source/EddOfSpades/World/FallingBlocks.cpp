@@ -3,7 +3,7 @@
 #include "FallingBlocks.h"
 #include "ProceduralMeshComponent.h"
 #include "GameConstants.h"
-#include "EddOfSpadesGameState.h"
+#include "InGame/IGGameState.h"
 
 // Sets default values
 AFallingBlocks::AFallingBlocks()
@@ -74,7 +74,7 @@ void AFallingBlocks::BuildMesh()
 	TArray<FProcMeshTangent> Tangents;
 
 	// Get the game state for block color extraction
-	AEddOfSpadesGameState* GameState = GetWorld()->GetGameState<AEddOfSpadesGameState>();
+	AIGGameState* GameState = GetWorld()->GetGameState<AIGGameState>();
 
 	// Populate data
 	for(const FIntVector& Block : BlocksThatFell)
@@ -112,7 +112,7 @@ void AFallingBlocks::SetBlocksThatWillFall(const TArray<FIntVector>& Blocks)
 
 }
 
-void AFallingBlocks::AddBlockMesh(AEddOfSpadesGameState* GameState, const FIntVector& Block, TArray<FVector>& Positions, TArray<int32>& Indices, TArray<FLinearColor>& VertexColors)
+void AFallingBlocks::AddBlockMesh(AIGGameState* GameState, const FIntVector& Block, TArray<FVector>& Positions, TArray<int32>& Indices, TArray<FLinearColor>& VertexColors)
 {
 	// Get the start index before positions are added, in order to prevent offset 
 	int32 StartIndex = Positions.Num();

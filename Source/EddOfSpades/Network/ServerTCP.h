@@ -16,7 +16,7 @@ public:
 	FPendingData()
 	{}
 
-	FPendingData(int32 PacketSize, uint8* DataPtr, class AEddOfSpadesPlayerController* TargetPlayer)
+	FPendingData(int32 PacketSize, uint8* DataPtr, class AIGPlayerController* TargetPlayer)
 		: PacketSize(PacketSize)
 		, DataPtr(DataPtr)
 		, TargetPlayer(TargetPlayer)
@@ -27,7 +27,7 @@ public:
 	uint8* DataPtr;
 
 	UPROPERTY()
-	class AEddOfSpadesPlayerController* TargetPlayer;
+	class AIGPlayerController* TargetPlayer;
 
 };
 
@@ -40,8 +40,8 @@ class EDDOFSPADES_API UServerTCP : public UObject, public FRunnable
 	GENERATED_BODY()
 	
 private:
-	TMap<class AEddOfSpadesPlayerController*, FSocket*> ClientSockets;
-	TQueue<class AEddOfSpadesPlayerController*, EQueueMode::Spsc> ClientsToConnectTo;
+	TMap<class AIGPlayerController*, FSocket*> ClientSockets;
+	TQueue<class AIGPlayerController*, EQueueMode::Spsc> ClientsToConnectTo;
 	TQueue<FPendingData, EQueueMode::Spsc> PendingPackets;
 
 	int32 ClientPort;
@@ -54,15 +54,15 @@ public:
 	~UServerTCP();
 
 	void StartServerTCP();
-	void AddClientForConnection(class AEddOfSpadesPlayerController* OwningController);
+	void AddClientForConnection(class AIGPlayerController* OwningController);
 
-	bool SendDataTo(class AEddOfSpadesPlayerController* OwningController, int32 DataSize, uint8* DataPtr);
+	bool SendDataTo(class AIGPlayerController* OwningController, int32 DataSize, uint8* DataPtr);
 
 	virtual void Exit() override;
 	virtual uint32 Run() override;
 	virtual void Stop() override;
 
 private:
-	bool EstablishConnectionToClient(class AEddOfSpadesPlayerController* OwningController);
+	bool EstablishConnectionToClient(class AIGPlayerController* OwningController);
 
 };

@@ -4,12 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "EddOfSpadesCharacter.generated.h"
+#include "IGCharacter.generated.h"
 
 class UInputComponent;
 
 UCLASS(config=Game)
-class AEddOfSpadesCharacter : public ACharacter
+class AIGCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -31,7 +31,7 @@ protected:
 	float Reach;
 
 public:
-	AEddOfSpadesCharacter();
+	AIGCharacter();
 
 protected:
 	virtual void BeginPlay();
@@ -47,7 +47,7 @@ public:
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category=Projectile)
-	TSubclassOf<class AEddOfSpadesProjectile> ProjectileClass;
+	TSubclassOf<class AIGProjectile> ProjectileClass;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Gameplay)

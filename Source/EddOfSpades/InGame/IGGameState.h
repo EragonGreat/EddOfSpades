@@ -5,7 +5,7 @@
 #include "Engine.h"
 #include "GameConstants.h"
 #include "GameFramework/GameState.h"
-#include "EddOfSpadesGameState.generated.h"
+#include "IGGameState.generated.h"
 
 USTRUCT(BlueprintType)
 struct FBlockColor {
@@ -51,7 +51,7 @@ public:
  * 
  */
 UCLASS()
-class EDDOFSPADES_API AEddOfSpadesGameState : public AGameState
+class EDDOFSPADES_API AIGGameState : public AGameState
 {
 	GENERATED_BODY()
 

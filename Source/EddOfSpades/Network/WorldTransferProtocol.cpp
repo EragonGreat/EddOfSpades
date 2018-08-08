@@ -3,9 +3,9 @@
 #include "WorldTransferProtocol.h"
 #include "ClientTCP.h"
 #include "ServerTCP.h"
-#include "EddOfSpadesGameState.h"
-#include "EddOfSpadesHUD.h"
-#include "EddOfSpadesPlayerController.h"
+#include "InGame/IGGameState.h"
+#include "InGame/IGHUD.h"
+#include "InGame/IGPlayerController.h"
 
 
 UWorldTransferProtocol::~UWorldTransferProtocol()
@@ -19,7 +19,7 @@ UWorldTransferProtocol::~UWorldTransferProtocol()
 
 }
 
-void UWorldTransferProtocol::SendWorldToClient(UServerTCP* ServerTCP, AEddOfSpadesGameState* GameState, AEddOfSpadesPlayerController* TargetPlayer)
+void UWorldTransferProtocol::SendWorldToClient(UServerTCP* ServerTCP, AIGGameState* GameState, AIGPlayerController* TargetPlayer)
 {
 	this->ServerTCP = ServerTCP;
 	this->TargetPlayer = TargetPlayer;
@@ -30,7 +30,7 @@ void UWorldTransferProtocol::SendWorldToClient(UServerTCP* ServerTCP, AEddOfSpad
 	StartTransfering();
 }
 
-void UWorldTransferProtocol::ReceiveWorldFromServer(UClientTCP* ClientTCP, AEddOfSpadesGameState* GameState, AEddOfSpadesPlayerController* ClientController)
+void UWorldTransferProtocol::ReceiveWorldFromServer(UClientTCP* ClientTCP, AIGGameState* GameState, AIGPlayerController* ClientController)
 {
 	this->ClientTCP = ClientTCP;
 	this->TargetPlayer = ClientController;
@@ -158,7 +158,7 @@ void UWorldTransferProtocol::StartTransfering()
 	
 	if(TargetPlayer)
 	{
-		HUD = Cast<AEddOfSpadesHUD>(TargetPlayer->GetHUD());
+		HUD = Cast<AIGHUD>(TargetPlayer->GetHUD());
 	}
 
 	bStopping = false;

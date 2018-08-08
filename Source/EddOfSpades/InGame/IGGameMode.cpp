@@ -1,9 +1,9 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
-#include "EddOfSpadesGameMode.h"
-#include "EddOfSpadesHUD.h"
+#include "IGGameMode.h"
+#include "IGHUD.h"
 #include "Network/ServerTCP.h"
-#include "EddOfSpadesCharacter.h"
+#include "IGCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "World/WorldLoader.h"
 #include "World/BlockPhysics.h"
@@ -13,26 +13,26 @@
 #include "GameConstants.h"
 #include "Network/WorldTransferProtocol.h"
 
-AEddOfSpadesGameMode::AEddOfSpadesGameMode()
+AIGGameMode::AIGGameMode()
 	: Super()
 	, ServerTCP(nullptr)
 	, BlockTransfer(nullptr)
 {
 
 	// Setup defaults
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/BP_EddOfSpadesCharacter"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesCharacter"));
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<ASpectatorPawn> SpectatorPawnClassFinder(TEXT("/Game/Blueprints/BP_EddOfSpadesSpectatorPawn"));
+	static ConstructorHelpers::FClassFinder<ASpectatorPawn> SpectatorPawnClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesSpectatorPawn"));
 	SpectatorClass = SpectatorPawnClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassFinder(TEXT("/Game/Blueprints/BP_EddOfSpadesPlayerController"));
+	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesPlayerController"));
 	PlayerControllerClass = PlayerControllerClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<AEddOfSpadesGameState> GameStateClassFinder(TEXT("/Game/Blueprints/BP_EddOfSpadesGameState"));
+	static ConstructorHelpers::FClassFinder<AIGGameState> GameStateClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesGameState"));
 	GameStateClass = GameStateClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<AEddOfSpadesHUD> HUDClassFinder(TEXT("/Game/Blueprints/BP_EddOfSpadesHUD"));
+	static ConstructorHelpers::FClassFinder<AIGHUD> HUDClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesHUD"));
 	HUDClass = HUDClassFinder.Class;
 
 	bStartPlayersAsSpectators = true;
@@ -40,7 +40,7 @@ AEddOfSpadesGameMode::AEddOfSpadesGameMode()
 
 }
 
-void AEddOfSpadesGameMode::PostLogin(APlayerController* NewPlayer)
+void AIGGameMode::PostLogin(APlayerController* NewPlayer)
 {
 
 	Super::PostLogin(NewPlayer);
@@ -53,7 +53,7 @@ void AEddOfSpadesGameMode::PostLogin(APlayerController* NewPlayer)
 	}
 
 	// Add the new player to the player list
-	AEddOfSpadesPlayerController* Player = Cast<AEddOfSpadesPlayerController>(NewPlayer);
+	AIGPlayerController* Player = Cast<AIGPlayerController>(NewPlayer);
 
 	PlayerControllers.Add(Player);
 
@@ -61,20 +61,20 @@ void AEddOfSpadesGameMode::PostLogin(APlayerController* NewPlayer)
 	ServerTCP->AddClientForConnection(Player);
 }
 
-void AEddOfSpadesGameMode::StartPlay()
+void AIGGameMode::StartPlay()
 {
 
 	Super::StartPlay();
 
 }
 
-void AEddOfSpadesGameMode::SendWorldToAllConnectedClients()
+void AIGGameMode::SendWorldToAllConnectedClients()
 {
 
 	// Loop through all players
 	for(FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
-		AEddOfSpadesPlayerController* Player = Cast<AEddOfSpadesPlayerController>(*It);
+		AIGPlayerController* Player = Cast<AIGPlayerController>(*It);
 
 		// Make sure to not send data to self, if there is a local player on the server
 		if(GetNetMode() == NM_ListenServer)
@@ -91,7 +91,7 @@ void AEddOfSpadesGameMode::SendWorldToAllConnectedClients()
 
 }
 
-void AEddOfSpadesGameMode::RespawnPlayer(AEddOfSpadesPlayerController* Player)
+void AIGGameMode::RespawnPlayer(AIGPlayerController* Player)
 {
 	// Destroy the old pawn, if any
 	if (Player->GetPawn())
@@ -100,7 +100,7 @@ void AEddOfSpadesGameMode::RespawnPlayer(AEddOfSpadesPlayerController* Player)
 	}
 
 	// Spawn the new pawn
-	AEddOfSpadesCharacter* Pawn = GetWorld()->SpawnActor<AEddOfSpadesCharacter>(DefaultPawnClass);
+	AIGCharacter* Pawn = GetWorld()->SpawnActor<AIGCharacter>(DefaultPawnClass);
 
 	Pawn->SetActorLocation(FVector(
 		(GameConstants::WorldBlockCount / 2) * GameConstants::BlockSize, 
@@ -112,7 +112,7 @@ void AEddOfSpadesGameMode::RespawnPlayer(AEddOfSpadesPlayerController* Player)
 
 }
 
-void AEddOfSpadesGameMode::UpdateBlock(const FIntVector& Position, const FBlockData& NewBlock)
+void AIGGameMode::UpdateBlock(const FIntVector& Position, const FBlockData& NewBlock)
 {
 
 	// Update the block
@@ -143,7 +143,7 @@ void AEddOfSpadesGameMode::UpdateBlock(const FIntVector& Position, const FBlockD
 	}
 }
 
-void AEddOfSpadesGameMode::OnStartButtonPressed()
+void AIGGameMode::OnStartButtonPressed()
 {
 
 	// Start loading the world
@@ -151,7 +151,7 @@ void AEddOfSpadesGameMode::OnStartButtonPressed()
 
 }
 
-void AEddOfSpadesGameMode::OnWorldLoaded()
+void AIGGameMode::OnWorldLoaded()
 {
 
 	// Send the world data to the clients
@@ -162,19 +162,19 @@ void AEddOfSpadesGameMode::OnWorldLoaded()
 
 }
 
-void AEddOfSpadesGameMode::BeginPlay()
+void AIGGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
 	// Prepare game object references
-	EddGameState = GetGameState<AEddOfSpadesGameState>();
+	EddGameState = GetGameState<AIGGameState>();
 
 	// Craete the chunkspawner
 	BlockTransfer = GetWorld()->SpawnActor<ABlockTransfer>();
 
 	// Create the world loader
 	WorldLoader = NewObject<UWorldLoader>();
-	WorldLoader->OnWorldLoaded.AddDynamic(this, &AEddOfSpadesGameMode::OnWorldLoaded);
+	WorldLoader->OnWorldLoaded.AddDynamic(this, &AIGGameMode::OnWorldLoaded);
 
 	// Create the world transfer
 	WorldTransfer = NewObject<UWorldTransferProtocol>();
@@ -185,13 +185,13 @@ void AEddOfSpadesGameMode::BeginPlay()
 	// If this is a listen server, bind appropriate delegates
 	if(GetNetMode() == NM_ListenServer || GetNetMode() == NM_Standalone)
 	{
-		AEddOfSpadesPlayerController* ServerPlayer = Cast<AEddOfSpadesPlayerController>(GetWorld()->GetFirstPlayerController());
+		AIGPlayerController* ServerPlayer = Cast<AIGPlayerController>(GetWorld()->GetFirstPlayerController());
 
-		ServerPlayer->OnStartButtonPressed.AddDynamic(this, &AEddOfSpadesGameMode::OnStartButtonPressed);
+		ServerPlayer->OnStartButtonPressed.AddDynamic(this, &AIGGameMode::OnStartButtonPressed);
 	}
 }
 
-void AEddOfSpadesGameMode::OnMatchStateSet()
+void AIGGameMode::OnMatchStateSet()
 {
 	Super::OnMatchStateSet();
 

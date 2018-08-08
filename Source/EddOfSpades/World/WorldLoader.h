@@ -17,8 +17,8 @@ class EDDOFSPADES_API UWorldLoader : public UObject, public FRunnable
 	GENERATED_BODY()
 
 private:
-	class AEddOfSpadesGameState* GameState;
-	class AEddOfSpadesHUD* HUD;
+	class AIGGameState* GameState;
+	class AIGHUD* HUD;
 
 	FRunnableThread* LoadThread;
 
@@ -38,7 +38,7 @@ public:
 public:
 	~UWorldLoader();
 
-	void LoadNewWorld(class AEddOfSpadesGameState* GameState, bool bProcedural);
+	void LoadNewWorld(class AIGGameState* GameState, bool bProcedural);
 
 	virtual uint32 Run() override;
 	virtual void Stop() override;

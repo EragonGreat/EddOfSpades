@@ -15,7 +15,7 @@ class EDDOFSPADES_API AChunkSpawner : public AActor, public FRunnable
 	GENERATED_BODY()
 	
 private:
-	class AEddOfSpadesHUD* HUD;
+	class AIGHUD* HUD;
 
 	TArray<AChunk*> SpawnedChunks;
 

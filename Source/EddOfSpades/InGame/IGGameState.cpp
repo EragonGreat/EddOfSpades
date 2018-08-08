@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-#include "EddOfSpadesGameState.h"
+#include "IGGameState.h"
 #include "UnrealNetwork.h"
 
-void AEddOfSpadesGameState::BeginPlay()
+void AIGGameState::BeginPlay()
 {
 	// Prepare world data array
 	Chunks.SetNum(GameConstants::WorldChunkCount * GameConstants::WorldChunkCount);
@@ -13,7 +13,7 @@ void AEddOfSpadesGameState::BeginPlay()
 	}
 }
 
-const FBlockColor& AEddOfSpadesGameState::GetBlockColorAt(int32 x, int32 y, int32 z) const
+const FBlockColor& AIGGameState::GetBlockColorAt(int32 x, int32 y, int32 z) const
 {
 	const TArray<FBlockData>& Chunk = GetChunk(x / GameConstants::ChunkSize, y / GameConstants::ChunkSize).BlockData;
 
@@ -23,12 +23,12 @@ const FBlockColor& AEddOfSpadesGameState::GetBlockColorAt(int32 x, int32 y, int3
 	return Chunk[ChunkX + GameConstants::ChunkSize * (ChunkY + GameConstants::ChunkSize * z)].Color;
 }
 
-const FBlockColor& AEddOfSpadesGameState::GetBlockColorAt(const FIntVector& Pos) const
+const FBlockColor& AIGGameState::GetBlockColorAt(const FIntVector& Pos) const
 {
 	return GetBlockColorAt(Pos.X, Pos.Y, Pos.Z);
 }
 
-void AEddOfSpadesGameState::SetBlockColorAt(int32 x, int32 y, int32 z, const FBlockColor& NewColor)
+void AIGGameState::SetBlockColorAt(int32 x, int32 y, int32 z, const FBlockColor& NewColor)
 {
 	TArray<FBlockData>& Chunk = GetEditableChunk(x / GameConstants::ChunkSize, y / GameConstants::ChunkSize).BlockData;
 
@@ -38,12 +38,12 @@ void AEddOfSpadesGameState::SetBlockColorAt(int32 x, int32 y, int32 z, const FBl
 	Chunk[ChunkX + GameConstants::ChunkSize * (ChunkY + GameConstants::ChunkSize * z)].Color = NewColor;
 }
 
-void AEddOfSpadesGameState::SetBlockColorAt(const FIntVector& Pos, const FBlockColor& NewColor)
+void AIGGameState::SetBlockColorAt(const FIntVector& Pos, const FBlockColor& NewColor)
 {
 	SetBlockColorAt(Pos.X, Pos.Y, Pos.Z, NewColor);
 }
 
-bool AEddOfSpadesGameState::IsBlockAirAt(int32 x, int32 y, int32 z) const
+bool AIGGameState::IsBlockAirAt(int32 x, int32 y, int32 z) const
 {
 	const TArray<FBlockData>& Chunk = GetChunk(x / GameConstants::ChunkSize, y / GameConstants::ChunkSize).BlockData;
 
@@ -53,12 +53,12 @@ bool AEddOfSpadesGameState::IsBlockAirAt(int32 x, int32 y, int32 z) const
 	return Chunk[ChunkX + GameConstants::ChunkSize * (ChunkY + GameConstants::ChunkSize * z)].bIsAir;
 }
 
-bool AEddOfSpadesGameState::IsBlockAirAt(const FIntVector& Pos) const
+bool AIGGameState::IsBlockAirAt(const FIntVector& Pos) const
 {
 	return IsBlockAirAt(Pos.X, Pos.Y, Pos.Z);
 }
 
-void AEddOfSpadesGameState::SetBlockIsAirAt(int32 x, int32 y, int32 z, bool bIsAir)
+void AIGGameState::SetBlockIsAirAt(int32 x, int32 y, int32 z, bool bIsAir)
 {
 	TArray<FBlockData>& Chunk = GetEditableChunk(x / GameConstants::ChunkSize, y / GameConstants::ChunkSize).BlockData;
 
@@ -68,12 +68,12 @@ void AEddOfSpadesGameState::SetBlockIsAirAt(int32 x, int32 y, int32 z, bool bIsA
 	Chunk[ChunkX + GameConstants::ChunkSize * (ChunkY + GameConstants::ChunkSize * z)].bIsAir = bIsAir;
 }
 
-void AEddOfSpadesGameState::SetBlockIsAirAt(const FIntVector& Pos, bool bIsAir)
+void AIGGameState::SetBlockIsAirAt(const FIntVector& Pos, bool bIsAir)
 {
 	SetBlockIsAirAt(Pos.X, Pos.Y, Pos.Z, bIsAir);
 }
 
-const FBlockData& AEddOfSpadesGameState::GetBlockAt(int32 x, int32 y, int32 z) const
+const FBlockData& AIGGameState::GetBlockAt(int32 x, int32 y, int32 z) const
 {
 
 	const TArray<FBlockData>& Chunk = GetChunk(x / GameConstants::ChunkSize, y / GameConstants::ChunkSize).BlockData;
@@ -85,12 +85,12 @@ const FBlockData& AEddOfSpadesGameState::GetBlockAt(int32 x, int32 y, int32 z) c
 
 }
 
-const FBlockData& AEddOfSpadesGameState::GetBlockAt(const FIntVector& Pos) const
+const FBlockData& AIGGameState::GetBlockAt(const FIntVector& Pos) const
 {
 	return GetBlockAt(Pos.X, Pos.Y, Pos.Z);
 }
 
-void AEddOfSpadesGameState::SetBlockAt(int32 x, int32 y, int32 z, const FBlockData& NewBlock)
+void AIGGameState::SetBlockAt(int32 x, int32 y, int32 z, const FBlockData& NewBlock)
 {
 	TArray<FBlockData>& Chunk = GetEditableChunk(x / GameConstants::ChunkSize, y / GameConstants::ChunkSize).BlockData;
 
@@ -100,27 +100,27 @@ void AEddOfSpadesGameState::SetBlockAt(int32 x, int32 y, int32 z, const FBlockDa
 	Chunk[ChunkX + GameConstants::ChunkSize * (ChunkY + GameConstants::ChunkSize * z)] = NewBlock;
 }
 
-void AEddOfSpadesGameState::SetBlockAt(const FIntVector& Pos, const FBlockData& NewBlock)
+void AIGGameState::SetBlockAt(const FIntVector& Pos, const FBlockData& NewBlock)
 {
 	SetBlockAt(Pos.X, Pos.Y, Pos.Z, NewBlock);
 }
 
-void AEddOfSpadesGameState::SetChunk(const FChunkData& NewChunk, int32 ChunkX, int32 ChunkY)
+void AIGGameState::SetChunk(const FChunkData& NewChunk, int32 ChunkX, int32 ChunkY)
 {
 	Chunks[ChunkY * GameConstants::WorldChunkCount + ChunkX] = NewChunk;
 }
 
-const FChunkData& AEddOfSpadesGameState::GetChunk(int32 ChunkX, int32 ChunkY) const
+const FChunkData& AIGGameState::GetChunk(int32 ChunkX, int32 ChunkY) const
 {
 	return Chunks[ChunkY * GameConstants::WorldChunkCount + ChunkX];
 }
 
-FChunkData& AEddOfSpadesGameState::GetEditableChunk(int32 ChunkX, int32 ChunkY)
+FChunkData& AIGGameState::GetEditableChunk(int32 ChunkX, int32 ChunkY)
 {
 	return Chunks[ChunkY * GameConstants::WorldChunkCount + ChunkX];
 }
 
-const TArray<FChunkData>& AEddOfSpadesGameState::GetAllChunks() const
+const TArray<FChunkData>& AIGGameState::GetAllChunks() const
 {
 	return Chunks;
 }

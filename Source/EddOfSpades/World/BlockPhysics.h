@@ -57,12 +57,12 @@ private:
 	TArray<FBlockNode> BlockNodes;
 
 	UPROPERTY()
-	class AEddOfSpadesGameState* GameState;
+	class AIGGameState* GameState;
 	
 public:
 	UBlockPhysics();
 
-	bool CheckIfBlocksWillFall(AEddOfSpadesGameState* GameState, const FIntVector& BlockPosition, FBlockPhysicsResult& OutResult);
+	bool CheckIfBlocksWillFall(AIGGameState* GameState, const FIntVector& BlockPosition, FBlockPhysicsResult& OutResult);
 
 private:
 	void AnalyzeChangedBlock(const FIntVector& Block, FFallingBlocksList& OutFallingBlocks);

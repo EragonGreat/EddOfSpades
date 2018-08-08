@@ -3,20 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EddOfSpadesPlayerController.h"
+#include "IGPlayerController.h"
 #include "GameFramework/GameMode.h"
-#include "EddOfSpadesGameMode.generated.h"
+#include "IGGameMode.generated.h"
 
 UCLASS()
-class AEddOfSpadesGameMode : public AGameMode
+class AIGGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
 private:
-	TArray<AEddOfSpadesPlayerController*> PlayerControllers;
+	TArray<AIGPlayerController*> PlayerControllers;
 
 	UPROPERTY()
-	AEddOfSpadesGameState* EddGameState; 
+	AIGGameState* EddGameState; 
 
 	UPROPERTY()
 	class UServerTCP* ServerTCP;
@@ -34,7 +34,7 @@ private:
 	class ABlockTransfer* BlockTransfer;
 
 public:
-	AEddOfSpadesGameMode();
+	AIGGameMode();
 
 	virtual void PostLogin(APlayerController* NewPlayer) override;
 
@@ -42,7 +42,7 @@ public:
 
 	void SendWorldToAllConnectedClients();
 
-	void RespawnPlayer(AEddOfSpadesPlayerController* Player);
+	void RespawnPlayer(AIGPlayerController* Player);
 
 	void UpdateBlock(const FIntVector& Position, const FBlockData& NewBlock);
 	

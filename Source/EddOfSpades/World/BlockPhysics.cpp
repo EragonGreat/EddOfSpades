@@ -1,14 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BlockPhysics.h"
-#include "EddOfSpadesGameState.h"
+#include "InGame/IGGameState.h"
 
 UBlockPhysics::UBlockPhysics()
 {
 	SetUpNodeArray();
 }
 
-bool UBlockPhysics::CheckIfBlocksWillFall(AEddOfSpadesGameState* GameState, const FIntVector& Block, FBlockPhysicsResult& OutResult)
+bool UBlockPhysics::CheckIfBlocksWillFall(AIGGameState* GameState, const FIntVector& Block, FBlockPhysicsResult& OutResult)
 {
 	this->GameState = GameState;
 

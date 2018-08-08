@@ -27,7 +27,7 @@ class EDDOFSPADES_API UClientTCP : public UObject, public FRunnable
 	GENERATED_BODY()
 	
 private:
-	class AEddOfSpadesPlayerController* OwningController;
+	class AIGPlayerController* OwningController;
 
 	FSocket* ClientSocket;
 	FSocket* ConnectionSocket;
@@ -45,7 +45,7 @@ public:
 
 	bool WaitForServerConnection(int32 GamePort);
 	
-	void StartTCPSocket(class AEddOfSpadesPlayerController* OwningController);
+	void StartTCPSocket(class AIGPlayerController* OwningController);
 
 	bool HasPendingPacket() const;
 

@@ -17,13 +17,13 @@ class EDDOFSPADES_API UWorldTransferProtocol : public UObject, public FRunnable
 	GENERATED_BODY()
 	
 private:
-	class AEddOfSpadesGameState* GameState;
+	class AIGGameState* GameState;
 
 	class UServerTCP* ServerTCP;
 	class UClientTCP* ClientTCP;
 
-	class AEddOfSpadesPlayerController* TargetPlayer;
-	class AEddOfSpadesHUD* HUD;
+	class AIGPlayerController* TargetPlayer;
+	class AIGHUD* HUD;
 
 	bool bIsReceiving;
 	bool bStopping;
@@ -41,8 +41,8 @@ public:
 public:
 	~UWorldTransferProtocol();
 
-	void SendWorldToClient(class UServerTCP* ServerTCP, AEddOfSpadesGameState* GameState, class AEddOfSpadesPlayerController* TargetPlayer);
-	void ReceiveWorldFromServer(class UClientTCP* ClientTCP, AEddOfSpadesGameState* GameState, class AEddOfSpadesPlayerController* ClientController);
+	void SendWorldToClient(class UServerTCP* ServerTCP, AIGGameState* GameState, class AIGPlayerController* TargetPlayer);
+	void ReceiveWorldFromServer(class UClientTCP* ClientTCP, AIGGameState* GameState, class AIGPlayerController* ClientController);
 
 	virtual uint32 Run() override;
 

@@ -1,7 +1,7 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
-#include "EddOfSpadesCharacter.h"
-#include "EddOfSpadesProjectile.h"
+#include "IGCharacter.h"
+#include "IGProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -10,14 +10,14 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameConstants.h"
-#include "EddOfSpadesPlayerController.h"
+#include "IGPlayerController.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 //////////////////////////////////////////////////////////////////////////
 // AEddOfSpadesCharacter
 
-AEddOfSpadesCharacter::AEddOfSpadesCharacter()
+AIGCharacter::AIGCharacter()
 {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -52,7 +52,7 @@ AEddOfSpadesCharacter::AEddOfSpadesCharacter()
 
 }
 
-void AEddOfSpadesCharacter::BeginPlay()
+void AIGCharacter::BeginPlay()
 {
 	// Call the base class  
 	Super::BeginPlay();
@@ -65,7 +65,7 @@ void AEddOfSpadesCharacter::BeginPlay()
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-void AEddOfSpadesCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
+void AIGCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
@@ -75,23 +75,23 @@ void AEddOfSpadesCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	// Bind fire event
-	PlayerInputComponent->BindAction("PerformAction", IE_Pressed, this, &AEddOfSpadesCharacter::OnPerformAction);
-	PlayerInputComponent->BindAction("PerformSecondaryAction", IE_Pressed, this, &AEddOfSpadesCharacter::OnPerformSecondaryAction);
+	PlayerInputComponent->BindAction("PerformAction", IE_Pressed, this, &AIGCharacter::OnPerformAction);
+	PlayerInputComponent->BindAction("PerformSecondaryAction", IE_Pressed, this, &AIGCharacter::OnPerformSecondaryAction);
 
 	// Bind movement events
-	PlayerInputComponent->BindAxis("MoveForward", this, &AEddOfSpadesCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AEddOfSpadesCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &AIGCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &AIGCharacter::MoveRight);
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AEddOfSpadesCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("TurnRate", this, &AIGCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AEddOfSpadesCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &AIGCharacter::LookUpAtRate);
 }
 
-bool AEddOfSpadesCharacter::LineTraceForBlock(const FVector& Start, const FVector& End, FIntVector& OutHitBlock, FIntVector& OutNormalBlock)
+bool AIGCharacter::LineTraceForBlock(const FVector& Start, const FVector& End, FIntVector& OutHitBlock, FIntVector& OutNormalBlock)
 {
 	// Line trace for blocks
 	FHitResult OutHit;
@@ -113,7 +113,7 @@ bool AEddOfSpadesCharacter::LineTraceForBlock(const FVector& Start, const FVecto
 	return false;
 }
 
-void AEddOfSpadesCharacter::OnPerformAction()
+void AIGCharacter::OnPerformAction()
 {
 	// try and fire a projectile
 	if (ProjectileClass != NULL)
@@ -130,7 +130,7 @@ void AEddOfSpadesCharacter::OnPerformAction()
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 			// spawn the projectile at the muzzle
-			World->SpawnActor<AEddOfSpadesProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			World->SpawnActor<AIGProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 
 		}
 	}
@@ -160,11 +160,11 @@ void AEddOfSpadesCharacter::OnPerformAction()
 
 	if(LineTraceForBlock(Start, End, OutHitBlock, OutNormalBlock))
 	{
-		Cast<AEddOfSpadesPlayerController>(Controller)->ServerDamageBlock(OutHitBlock);
+		Cast<AIGPlayerController>(Controller)->ServerDamageBlock(OutHitBlock);
 	}
 }
 
-void AEddOfSpadesCharacter::OnPerformSecondaryAction()
+void AIGCharacter::OnPerformSecondaryAction()
 {
 
 	// Trace for block to place
@@ -175,14 +175,14 @@ void AEddOfSpadesCharacter::OnPerformSecondaryAction()
 	if(LineTraceForBlock(Start, End, OutHitBlock, OutNormalBlock))
 	{
 
-		AEddOfSpadesPlayerController* Controller = Cast<AEddOfSpadesPlayerController>(this->Controller);
+		AIGPlayerController* Controller = Cast<AIGPlayerController>(this->Controller);
 			
 		Controller->ServerPlaceBlock(OutNormalBlock, Controller->SelectedColor);
 	}
 
 }
 
-void AEddOfSpadesCharacter::MoveForward(float Value)
+void AIGCharacter::MoveForward(float Value)
 {
 	if (Value != 0.0f)
 	{
@@ -191,7 +191,7 @@ void AEddOfSpadesCharacter::MoveForward(float Value)
 	}
 }
 
-void AEddOfSpadesCharacter::MoveRight(float Value)
+void AIGCharacter::MoveRight(float Value)
 {
 	if (Value != 0.0f)
 	{
@@ -200,13 +200,13 @@ void AEddOfSpadesCharacter::MoveRight(float Value)
 	}
 }
 
-void AEddOfSpadesCharacter::TurnAtRate(float Rate)
+void AIGCharacter::TurnAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AEddOfSpadesCharacter::LookUpAtRate(float Rate)
+void AIGCharacter::LookUpAtRate(float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());

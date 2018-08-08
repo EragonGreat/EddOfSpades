@@ -1,8 +1,8 @@
 // Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
 
-#include "EddOfSpadesHUD.h"
+#include "IGHUD.h"
 
-void AEddOfSpadesHUD::Tick(float DeltaSeconds)
+void AIGHUD::Tick(float DeltaSeconds)
 {
 
 	if(bItemCountChanged)
@@ -14,14 +14,14 @@ void AEddOfSpadesHUD::Tick(float DeltaSeconds)
 
 }
 
-AEddOfSpadesHUD::AEddOfSpadesHUD()
+AIGHUD::AIGHUD()
 	: NextItemID(0)
 	, bItemCountChanged(false)
 {
 
 }
 
-int32 AEddOfSpadesHUD::InsertNewProgressItem(FString Description)
+int32 AIGHUD::InsertNewProgressItem(FString Description)
 {
 	NextItemID++;
 
@@ -37,7 +37,7 @@ int32 AEddOfSpadesHUD::InsertNewProgressItem(FString Description)
 
 }
 
-void AEddOfSpadesHUD::UpdateProgressItem(int32 ProgressID, float NewProgress)
+void AIGHUD::UpdateProgressItem(int32 ProgressID, float NewProgress)
 {
 
 	FProgressItem* Item = ProgressItems.Find(ProgressID);
@@ -49,7 +49,7 @@ void AEddOfSpadesHUD::UpdateProgressItem(int32 ProgressID, float NewProgress)
 
 }
 
-void AEddOfSpadesHUD::RemoveProgressItem(int32 ProgressID)
+void AIGHUD::RemoveProgressItem(int32 ProgressID)
 {
 
 	ProgressItems.Remove(ProgressID);
@@ -59,7 +59,7 @@ void AEddOfSpadesHUD::RemoveProgressItem(int32 ProgressID)
 
 }
 
-void AEddOfSpadesHUD::ProgressItemCountChanged_Implementation()
+void AIGHUD::ProgressItemCountChanged_Implementation()
 {
 
 }

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "EddOfSpadesGameState.h"
+#include "InGame/IGGameState.h"
 #include "GameFramework/Actor.h"
 #include "BlockTransfer.generated.h"
 
@@ -17,7 +17,7 @@ private:
 	class AChunkSpawner* ChunkSpawner;
 
 	UPROPERTY()
-	AEddOfSpadesGameState* GameState;
+	AIGGameState* GameState;
 
 public:	
 	// Sets default values for this actor's properties

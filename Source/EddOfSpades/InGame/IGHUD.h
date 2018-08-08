@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
-#include "EddOfSpadesHUD.generated.h"
+#include "IGHUD.generated.h"
 
 USTRUCT(BlueprintType)
 struct EDDOFSPADES_API FProgressItem
@@ -21,7 +21,7 @@ public:
 };
 
 UCLASS(Blueprintable)
-class AEddOfSpadesHUD : public AHUD
+class AIGHUD : public AHUD
 {
 	GENERATED_BODY()
 
@@ -37,7 +37,7 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 public:
-	AEddOfSpadesHUD();
+	AIGHUD();
 
 	int32 InsertNewProgressItem(FString Description);
 	void UpdateProgressItem(int32 ProgressID, float NewProgress);
