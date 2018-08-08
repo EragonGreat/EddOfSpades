@@ -4,9 +4,9 @@
 
 const int64 GameConstants::ChunkSize = 8;
 
-const int64 GameConstants::WorldChunkCount = 16;
+const int64 GameConstants::WorldChunkCount = 32;
 
-const int64 GameConstants::WorldHeight = 64;
+const int64 GameConstants::WorldHeight = 128;
 
 const float GameConstants::BlockSize = 100.f;
 

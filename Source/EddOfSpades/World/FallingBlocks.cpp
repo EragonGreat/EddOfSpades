@@ -58,9 +58,6 @@ void AFallingBlocks::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// If this is a server, then simulate physics. Do not do this on client, as it makes it look glitchy
-	Mesh->SetSimulatePhysics(GetNetMode() < NM_Client);
-
 	SetLifeSpan(10.f);
 
 }
@@ -109,6 +106,9 @@ void AFallingBlocks::SetBlocksThatWillFall(const TArray<FIntVector>& Blocks)
 
 	// Create the mesh for the server
 	BuildMesh();
+
+	// If this is a server, then simulate physics. Do not do this on client, as it makes it look glitchy
+	Mesh->SetSimulatePhysics(GetNetMode() < NM_Client);
 
 }
 

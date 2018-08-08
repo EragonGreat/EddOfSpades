@@ -15,6 +15,7 @@ AChunk::AChunk()
 
 	RuntimeMesh = CreateDefaultSubobject<URuntimeMeshComponent>(TEXT("Runtime Mesh"));
 	RuntimeMesh->SetCollisionObjectType(ECC_GameTraceChannel2);
+	
 
 	static ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("Material'/Game/Materials/BlockMaterial.BlockMaterial'"));
 	if (Material.Succeeded())
