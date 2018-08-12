@@ -20,19 +20,19 @@ AIGGameMode::AIGGameMode()
 {
 
 	// Setup defaults
-	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesCharacter"));
+	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/Blueprints/InGame/BP_IGCharacter"));
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<ASpectatorPawn> SpectatorPawnClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesSpectatorPawn"));
+	static ConstructorHelpers::FClassFinder<ASpectatorPawn> SpectatorPawnClassFinder(TEXT("/Game/Blueprints/InGame/BP_IGSpectatorPawn"));
 	SpectatorClass = SpectatorPawnClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesPlayerController"));
+	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassFinder(TEXT("/Game/Blueprints/InGame/BP_IGPlayerController"));
 	PlayerControllerClass = PlayerControllerClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<AIGGameState> GameStateClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesGameState"));
+	static ConstructorHelpers::FClassFinder<AIGGameState> GameStateClassFinder(TEXT("/Game/Blueprints/InGame/BP_IGGameState"));
 	GameStateClass = GameStateClassFinder.Class;
 
-	static ConstructorHelpers::FClassFinder<AIGHUD> HUDClassFinder(TEXT("/Game/Blueprints/InGame/BP_EddOfSpadesHUD"));
+	static ConstructorHelpers::FClassFinder<AIGHUD> HUDClassFinder(TEXT("/Game/Blueprints/InGame/BP_IGHUD"));
 	HUDClass = HUDClassFinder.Class;
 
 	bStartPlayersAsSpectators = true;
